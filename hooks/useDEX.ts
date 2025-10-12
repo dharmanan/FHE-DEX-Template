@@ -18,12 +18,9 @@ import {
   ZAMA_TOKEN_ABI_OBJ
 } from '../constants';
 
-// A fixed private key for a predictable, simulated wallet address.
-// This is from hardhat/anvil's default accounts.
 const SIMULATED_WALLET_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 
 export const useDEX = (): UseDEXReturnType => {
-  // --- LOCAL STATE ---
   const [ethReserve, setEthReserve] = useState(INITIAL_ETH_RESERVE);
   const [tokenReserve, setTokenReserve] = useState(INITIAL_TOKEN_RESERVE);
   const [totalLiquidity, setTotalLiquidity] = useState(Math.sqrt(INITIAL_ETH_RESERVE * INITIAL_TOKEN_RESERVE));
@@ -37,14 +34,11 @@ export const useDEX = (): UseDEXReturnType => {
   const [isLiveMode, setIsLiveMode] = useState(false);
   const [transactionSummary, setTransactionSummary] = useState<string | null>(null);
 
-  // --- WEB3 STATE ---
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [provider, setProvider] = useState<providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<Signer | null>(null);
-  // Simülasyon için sabit wallet
   const simulatedWallet = new ethers.Wallet(SIMULATED_WALLET_PRIVATE_KEY);
 
-  // Cüzdan bağlantı fonksiyonu
   const connectWallet = useCallback(async () => {
     if ((window as any).ethereum) {
       try {
@@ -70,10 +64,8 @@ export const useDEX = (): UseDEXReturnType => {
   // --- MODE CHANGE EFFECT ---
   useEffect(() => {
     if (isLiveMode) {
-      // Live Mode: Gerçek cüzdan bağlanacak
       connectWallet();
     } else {
-      // Dummy Mode: Simülasyon adresi
       setUserAddress(simulatedWallet.address);
       setProvider(null);
       setSigner(null);
@@ -85,8 +77,6 @@ export const useDEX = (): UseDEXReturnType => {
     setUserLiquidity(0);
   }, [isLiveMode, connectWallet, simulatedWallet.address]);
 
-  // Cüzdan bağlandığında zincirden bakiyeleri otomatik güncelle
-  // (refreshOnChainBalances tanımından sonra)
   useEffect(() => {
     if (isLiveMode && provider && signer && userAddress) {
       refreshOnChainBalances();
@@ -102,83 +92,71 @@ export const useDEX = (): UseDEXReturnType => {
 
     try {
       if (isLiveMode) {
-        // In live mode, we introduce an artificial delay to simulate a real blockchain transaction.
         await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
       }
-
-      // The core logic is now the same for both Dummy and the new Simulated Live mode.
       const transactionResult = await fhevmService.executeConfidentialTransaction(details);
-      if (!transactionResult.success && !isLiveMode) { // FHEVM mock only fails in live mode by design
-         throw new Error(transactionResult.error || "Transaction failed");
+      if (!transactionResult.success && !isLiveMode) {
+        throw new Error(transactionResult.error || "Transaction failed");
       }
-      
       if (details.type === 'swap') {
-          const fee = details.inputAmount * 0.003;
-          const inputAmountAfterFee = details.inputAmount - fee;
-          if (details.inputAsset === 'ETH') {
-              setUserEthBalance((b: number) => b - details.inputAmount);
-              setUserTokenBalance((b: number) => b + details.outputAmount);
-              setEthReserve((r: number) => r + inputAmountAfterFee);
-              setTokenReserve((r: number) => r - details.outputAmount);
-          } else {
-              setUserTokenBalance((b: number) => b - details.inputAmount);
-              setUserEthBalance((b: number) => b + details.outputAmount);
-              setTokenReserve((r: number) => r + inputAmountAfterFee);
-              setEthReserve((r: number) => r - details.outputAmount);
-          }
-      } else if (details.type === 'deposit') {
-          const lpTokensMinted = (details.inputAmount / ethReserve) * totalLiquidity;
+        const fee = details.inputAmount * 0.003;
+        const inputAmountAfterFee = details.inputAmount - fee;
+        if (details.inputAsset === 'ETH') {
           setUserEthBalance((b: number) => b - details.inputAmount);
-          setUserTokenBalance((b: number) => b - details.outputAmount);
-          setEthReserve((r: number) => r + details.inputAmount);
-          setTokenReserve((r: number) => r + details.outputAmount);
-          setUserLiquidity((l: number) => l + lpTokensMinted);
-          setTotalLiquidity((t: number) => t + lpTokensMinted);
+          setUserTokenBalance((b: number) => b + details.outputAmount);
+          setEthReserve((r: number) => r + inputAmountAfterFee);
+          setTokenReserve((r: number) => r - details.outputAmount);
+        } else {
+          setUserTokenBalance((b: number) => b - details.inputAmount);
+          setUserEthBalance((b: number) => b + details.outputAmount);
+          setTokenReserve((r: number) => r + inputAmountAfterFee);
+          setEthReserve((r: number) => r - details.outputAmount);
+        }
+      } else if (details.type === 'deposit') {
+        const lpTokensMinted = (details.inputAmount / ethReserve) * totalLiquidity;
+        setUserEthBalance((b: number) => b - details.inputAmount);
+        setUserTokenBalance((b: number) => b - details.outputAmount);
+        setEthReserve((r: number) => r + details.inputAmount);
+        setTokenReserve((r: number) => r + details.outputAmount);
+        setUserLiquidity((l: number) => l + lpTokensMinted);
+        setTotalLiquidity((t: number) => t + lpTokensMinted);
       } else if (details.type === 'withdraw') {
-          const ownershipRatio = details.inputAmount / totalLiquidity;
-          const ethWithdrawn = ownershipRatio * ethReserve;
-          const tokenWithdrawn = ownershipRatio * tokenReserve;
-          
-          setUserLiquidity((l: number) => l - details.inputAmount);
-          setTotalLiquidity((t: number) => t - details.inputAmount);
-          setEthReserve((r: number) => r - ethWithdrawn);
-          setTokenReserve((r: number) => r - tokenWithdrawn);
-          setUserEthBalance((b: number) => b + ethWithdrawn);
-          setUserTokenBalance((b: number) => b + tokenWithdrawn);
+        const ownershipRatio = details.inputAmount / totalLiquidity;
+        const ethWithdrawn = ownershipRatio * ethReserve;
+        const tokenWithdrawn = ownershipRatio * tokenReserve;
+        setUserLiquidity((l: number) => l - details.inputAmount);
+        setTotalLiquidity((t: number) => t - details.inputAmount);
+        setEthReserve((r: number) => r - ethWithdrawn);
+        setTokenReserve((r: number) => r - tokenWithdrawn);
+        setUserEthBalance((b: number) => b + ethWithdrawn);
+        setUserTokenBalance((b: number) => b + tokenWithdrawn);
       }
-      
       const summary = await geminiPromise;
       setTransactionSummary(summary);
-
     } catch (error) {
-        console.error("Transaction Error:", error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        setTransactionSummary(`## Transaction Failed 🚨\n\nUnfortunately, the transaction could not be completed.\n\n**Reason:** ${errorMessage}`);
+      console.error("Transaction Error:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setTransactionSummary(`## Transaction Failed 🚨\n\nUnfortunately, the transaction could not be completed.\n\n**Reason:** ${errorMessage}`);
     } finally {
       setIsLoading(false);
       setIsSummaryLoading(false);
     }
   }, [isLiveMode, ethReserve, tokenReserve, totalLiquidity, fhevmService, geminiService]);
 
-  // Zincirden bakiyeleri ve rezervleri güncelleyen fonksiyon
   const refreshOnChainBalances = useCallback(async () => {
     if (!provider || !signer || !userAddress) return;
     try {
-      // ETH bakiyesi
       const ethBal = await provider.getBalance(userAddress);
       setUserEthBalance(Number(ethers.utils.formatEther(ethBal)));
 
-      // Token bakiyesi
       const tokenContract = new ethers.Contract(ZAMA_TOKEN_ADDRESS, ZAMA_TOKEN_ABI_OBJ, provider);
       const tokenBal = await tokenContract.balanceOf(userAddress);
       setUserTokenBalance(Number(ethers.utils.formatUnits(tokenBal, 18)));
 
-  // DEX rezervleri ve kullanıcı LP miktarı
   const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, provider);
   const reserves = await dexContract.getReserves();
   setEthReserve(Number(ethers.utils.formatEther(reserves[0])));
   setTokenReserve(Number(ethers.utils.formatUnits(reserves[1], 18)));
-  // Kullanıcı LP miktarı
   const userLiquidityOnChain = await dexContract.liquidity(userAddress);
   setUserLiquidity(Number(ethers.utils.formatEther(userLiquidityOnChain)));
     } catch (err) {
