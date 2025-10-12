@@ -1,0 +1,14 @@
+
+require("dotenv").config();
+const { PRIVATE_KEY, API_URL } = process.env;
+
+module.exports = {
+	solidity: "0.8.20",
+	networks: {
+		sepolia: {
+			url: API_URL,
+			accounts: [PRIVATE_KEY],
+		},
+	},
+};
+

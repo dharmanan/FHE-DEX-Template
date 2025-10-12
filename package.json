@@ -1,0 +1,41 @@
+{
+  "name": "zama-fhe-dex-showcase",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fhenixprotocol/contracts": "^0.3.1",
+    "@google/genai": "^1.24.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "process": "^0.11.10",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@rollup/plugin-inject": "^5.0.5",
+    "@types/node": "^22.18.10",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "@types/resolve": "^1.20.6",
+    "@types/underscore": "^1.13.0",
+    "@types/web3": "^1.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "autoprefixer": "^10.4.21",
+    "buffer": "^6.0.3",
+    "dotenv": "^17.2.3",
+    "ethers": "^5.8.0",
+    "hardhat": "^2.26.3",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
