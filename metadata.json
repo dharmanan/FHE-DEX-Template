@@ -1,0 +1,5 @@
+{
+  "name": "ZAMA FHE DEX Showcase",
+  "description": "A showcase implementation of an Automated Market Maker (AMM) DEX using a mock FHEVM SDK for confidential swaps and liquidity provision, enhanced with AI-powered transaction summaries.",
+  "requestFramePermissions": []
+}
