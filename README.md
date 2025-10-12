@@ -77,8 +77,4 @@ It supports ETH <-> ZamaToken swaps, privacy-preserving liquidity provision and 
    npm run dev
    ```
 
-## Security Notice
 
-**WARNING:** The repository previously contained exposed private keys and Infura project IDs in .env. Remove or rotate these credentials before any public release. Never use these keys in production.
-
----
