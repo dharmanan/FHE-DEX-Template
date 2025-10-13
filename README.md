@@ -1,3 +1,42 @@
+## Video Walkthrough & Deployment Links
+
+For bounty submission, please find below:
+
+- **Video Walkthrough:** [SOON]
+- **Next.js Demo Deployment:** [SOON]
+- **Vue Demo Deployment:** [SOON]
+
+
+## Important Note on Encryption
+
+The universal FHEVM SDK in this repository currently runs in **dummy/mock mode**. This means that encryption and decryption operations are simulated for demonstration purposes and do not perform real FHE encryption. The output (e.g., `0x_encrypted_"1987"`) is a placeholder, not a true confidential ciphertext.
+
+**However, the integration flow, API structure, and usage in different environments (Next.js, Vue, Node.js) are fully functional and match how a real FHEVM SDK would be used.**
+
+To enable true FHE encryption, Zama's official SDK and whitelist/relayer access are required.
+## Universal FHEVM SDK Node.js & Vue Examples
+
+This repository also includes Node.js (`/examples/node`) and Vue (`/examples/vue`) examples to demonstrate the SDK's framework-agnostic usage.
+
+### Node.js Example
+1. Install dependencies in the root directory:
+   ```
+   npm install
+   ```
+2. Run the Node.js example:
+   ```
+   node examples/node/index.js
+   ```
+
+### Vue Example
+1. Install dependencies in the root directory:
+   ```
+   npm install
+   ```
+2. Use your favorite Vue setup (e.g., Vite) and add `/examples/vue/App.vue` as your main component.
+3. Run the Vue app to see the universal FHEVM SDK in action.
+
+These examples show how the SDK can be used in any frontend or backend environment with minimal changes.
 
 ## FHE/Zama Libraries Used
 
@@ -47,16 +86,36 @@ It supports ETH <-> ZamaToken swaps, privacy-preserving liquidity provision and 
 - Improved balance refresh and error handling
 - Cleaned up all code comments for security
 
-## Frontend Work
 
-- Built with React and TypeScript (Vite)
-- MetaMask wallet connection and Sepolia network detection
-- Dynamic contract address and ABI sync
-- Fractional LP withdrawal support in UI
-- Real-time wallet and pool balance display
-- Error and status feedback for all transactions
-- Privacy-preserving logic integrated with FHEVM services
-- Responsive design for desktop and mobile
+## Universal FHEVM SDK Next.js Showcase
+
+This repository includes a universal FHEVM SDK (`/packages/fhevm-sdk`) and a Next.js example (`/examples/nextjs`) demonstrating its usage.
+
+### How to Run the Next.js Showcase
+
+1. Install dependencies in the root directory:
+   ```
+   npm install
+   ```
+2. Install dependencies for the Next.js example:
+   ```
+   cd examples/nextjs
+   npm install
+   ```
+3. Start the Next.js development server:
+   ```
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) to view the universal FHEVM SDK in action.
+
+### Example Usage
+
+The Next.js page demonstrates:
+- SDK initialization
+- Confidential value encryption
+- Decryption flow
+
+You can easily adapt the SDK for other frameworks (Vue, Node.js, etc.) using the core API.
 
 
 ## Getting Started
