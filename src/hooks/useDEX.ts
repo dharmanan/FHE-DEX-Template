@@ -8,6 +8,13 @@ import { ethers, BigNumber, Contract } from 'ethers';
 import { RelayerClient } from '../services/relayerClient';
 import { EncryptionService } from '../services/encryptionService';
 import { DecryptedResult } from '../types/relayer';
+import { 
+  DEX_CONTRACT_ADDRESS, 
+  ZAMA_TOKEN_ADDRESS, 
+  DEX_ABI_OBJ, 
+  ZAMA_TOKEN_ABI_OBJ, 
+  NETWORK_ID 
+} from '../../constants';
 
 interface DexConfig {
   contractAddress: string;
@@ -54,9 +61,6 @@ interface UseDexReturn extends DexState, DexActions {
  * Hook for interacting with FHEDEX contract
  */
 export function useDEX(config?: Partial<DexConfig>): UseDexReturn {
-  // Import defaults from constants
-  const { DEX_CONTRACT_ADDRESS, ZAMA_TOKEN_ADDRESS, DEX_ABI_OBJ, ZAMA_TOKEN_ABI_OBJ, NETWORK_ID } = require('../constants');
-  
   // Merge with defaults
   const finalConfig: DexConfig = {
     contractAddress: config?.contractAddress || DEX_CONTRACT_ADDRESS,
