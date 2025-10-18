@@ -3,8 +3,8 @@ export const TOKEN_SYMBOL = "ZAMA";
 
 // Sepolia Testnet Deployed Contracts (October 18, 2025)
 // FHE-Enabled FHEDEX Contract
-export const DEX_CONTRACT_ADDRESS = process.env.VITE_DEX_ADDRESS || "0x1F1B2d3BDCe3674164eD34F1313a62486764CD19";
-export const ZAMA_TOKEN_ADDRESS = process.env.VITE_ZAMA_TOKEN_ADDRESS || "0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636";
+export const DEX_CONTRACT_ADDRESS = import.meta.env.VITE_DEX_ADDRESS || "0xC06dFa845A5aAE13a666D48234d81176535AeBdD";
+export const ZAMA_TOKEN_ADDRESS = import.meta.env.VITE_ZAMA_TOKEN_ADDRESS || "0x9fa47046C88F45A29c5b60d6B01aB68281128138";
 
 import DEX_ABI from "./src/abi/DEX.json";
 import ZAMA_TOKEN_ABI from "./src/abi/ZamaToken.json";
@@ -20,5 +20,5 @@ export const INITIAL_USER_TOKEN_BALANCE = 1000;
 export const MOCK_API_DELAY = 1500; // ms
 
 // Network Configuration
-export const NETWORK_ID = parseInt(process.env.VITE_NETWORK_ID || "11155111"); // Sepolia
-export const NETWORK_NAME = process.env.VITE_NETWORK_NAME || "sepolia";
+export const NETWORK_ID = parseInt(import.meta.env.VITE_NETWORK_ID || "11155111"); // Sepolia
+export const NETWORK_NAME = import.meta.env.VITE_NETWORK_NAME || "sepolia";

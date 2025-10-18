@@ -21,7 +21,12 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env': {},
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      __VITE_DEX_ADDRESS__: JSON.stringify(env.VITE_DEX_ADDRESS),
+      __VITE_ZAMA_TOKEN_ADDRESS__: JSON.stringify(env.VITE_ZAMA_TOKEN_ADDRESS),
+      __VITE_NETWORK_ID__: JSON.stringify(env.VITE_NETWORK_ID),
+      __VITE_NETWORK_NAME__: JSON.stringify(env.VITE_NETWORK_NAME),
+      __VITE_RPC_URL__: JSON.stringify(env.VITE_RPC_URL),
     },
     resolve: {
       alias: {
