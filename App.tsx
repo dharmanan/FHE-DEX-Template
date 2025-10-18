@@ -3,11 +3,11 @@ import { Header } from './components/Header';
 import { BalanceDisplay } from './components/BalanceDisplay';
 import { DEXInterface } from './components/DEXInterface';
 import { TransactionSummaryModal } from './components/TransactionSummaryModal';
-import { useDEX } from './hooks/useDEX';
+import { useAppState } from './src/hooks/useAppState';
 import { InfoBanner } from './components/InfoBanner';
 
 export default function App() {
-  const dex = useDEX();
+  const dex = useAppState();
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col items-center p-4 selection:bg-yellow-400 selection:text-neutral-900">
