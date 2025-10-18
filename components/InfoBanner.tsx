@@ -14,11 +14,11 @@ export const InfoBanner: React.FC<InfoBannerProps> = ({ isLiveMode }) => {
   };
 
   const liveModeInfo = {
-    title: "You are in Live Mode (Simulated) 📡",
-    text: "This is a high-fidelity simulation. It uses ethers.js to mimic real blockchain interactions locally, without needing a wallet or connecting to a live network.",
-    borderColor: "border-yellow-500",
-    bgColor: "bg-yellow-900/20",
-    textColor: "text-yellow-200"
+    title: "Connected to Sepolia Testnet �",
+    text: "You are connected to the Ethereum Sepolia testnet. Real transactions require MetaMask and test ETH/ZAMA tokens.",
+    borderColor: "border-green-500",
+    bgColor: "bg-green-900/20",
+    textColor: "text-green-200"
   };
 
   const info = isLiveMode ? liveModeInfo : dummyModeInfo;
