@@ -8,19 +8,22 @@
 
 | Resource | Link | Status |
 |----------|------|--------|
+| **Live Frontend** | [https://zama-dex.vercel.app](https://zama-dex.vercel.app) | ✅ Live on Vercel |
 | **Smart Contracts** | [GitHub - contracts/](./contracts/) | ✅ Deployed |
-| **Frontend Repo** | [GitHub - Complete](https://github.com/dharmanan/ZAMA-DEX-FHE) | ✅ Live |
+| **FHE-Enabled DEX** | [FHEDEX.sol](./contracts/FHEDEX.sol) | ✅ FHE Implementation |
+| **Frontend Repo** | [GitHub - Complete](https://github.com/dharmanan/ZAMA-DEX-FHE) | ✅ Open Source |
+| **FHE Compliance** | [FHE_COMPLIANCE_ANALYSIS.md](./FHE_COMPLIANCE_ANALYSIS.md) | ✅ Full Analysis |
+| **FHEDEX Deployment** | [FHEDEX_DEPLOYMENT.md](./FHEDEX_DEPLOYMENT.md) | ✅ Guide Ready |
 | **Architecture Doc** | [ARCHITECTURE.md](./ARCHITECTURE.md) | ✅ Complete |
-| **Deployment Guide** | [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | ✅ Complete |
 | **Smart Contract Tests** | [npm test](./test/) | ✅ 11/11 passing |
 
-### Live Contract Addresses (Sepolia Testnet - October 18, 2025)
+### Smart Contracts - Two Versions Available
 
-| Contract | Address | Etherscan |
-|----------|---------|-----------|
-| **ZamaToken (ERC20)** | `0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636` | [View on Etherscan](https://sepolia.etherscan.io/address/0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636) |
-| **DEX (AMM)** | `0x1F1B2d3BDCe3674164eD34F1313a62486764CD19` | [View on Etherscan](https://sepolia.etherscan.io/address/0x1F1B2d3BDCe3674164eD34F1313a62486764CD19) |
-| **Deployer** | `0x20cDAd07152eF163CAd9Be2cDe1766298B883d71` | [View on Etherscan](https://sepolia.etherscan.io/address/0x20cDAd07152eF163CAd9Be2cDe1766298B883d71) |
+| Contract | Type | Address | Status |
+|----------|------|---------|--------|
+| **DEX.sol** | Standard AMM | `0x1F1B2d3BDCe3674164eD34F1313a62486764CD19` | ✅ Deployed |
+| **FHEDEX.sol** | 🔐 FHE-Enabled | Ready for deployment | 🟡 New |
+| **ZamaToken (ERC20)** | Token | `0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636` | ✅ Deployed |
 
 **Pool State** (Updated October 18, 2025):
 - ETH Reserve: 0.2 ETH
@@ -39,6 +42,23 @@
 **ZAMA DEX FHE** is a **complete dApp demonstration** of a privacy-preserving Decentralized Exchange (DEX) built with Zama's Fully Homomorphic Encryption (FHEVM).
 
 **Privacy by Design**: This project demonstrates how DEX operations (swaps, liquidity provision, withdrawals) can be performed with confidential data using FHEVM. Transaction amounts and user balances are encrypted, preventing third parties from viewing or deducing transaction details.
+
+### 🔐 FHE Implementation
+
+This project includes **two DEX implementations**:
+
+1. **DEX.sol** - Standard AMM for demonstration
+   - Currently deployed on Sepolia
+   - Used for testing frontend functionality
+   - Shows how standard DEX operates
+
+2. **FHEDEX.sol** - 🚀 **FHE-Enabled Version (NEW)**
+   - Uses `@fhenixprotocol/contracts` for homomorphic operations
+   - Encrypted reserve storage (`encryptedEthReserve`, `encryptedTokenReserve`)
+   - Confidential liquidity positions per user
+   - Private swap calculations using FHE.add(), FHE.mul(), FHE.div()
+   - Ready for deployment to Sepolia
+   - See [FHEDEX_DEPLOYMENT.md](./FHEDEX_DEPLOYMENT.md) for deployment guide
 
 ### Current Mode: Simulation (Testnet)
 The universal FHEVM SDK in this repository currently runs in **dummy/mock mode** for Sepolia testnet demonstration:
