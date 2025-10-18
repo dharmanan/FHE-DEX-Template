@@ -9,13 +9,10 @@
     "test": "hardhat test",
     "test:watch": "hardhat test --watch",
     "compile": "hardhat compile",
-    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
-    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
-    "init:dex": "hardhat run scripts/init-dex-liquidity.js --network sepolia",
-    "distribute:tokens": "hardhat run scripts/distribute-test-tokens.js --network sepolia"
+    "deploy": "hardhat run scripts/deploy.js --network zama_fhevm",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost"
   },
   "dependencies": {
-    "@fhenixprotocol/contracts": "^0.3.1",
     "@fhevm/solidity": "^0.8.0",
     "@google/genai": "^1.24.0",
     "@openzeppelin/contracts": "^5.4.0",
@@ -45,6 +42,7 @@
     "hardhat": "^2.26.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.3",
+    "terser": "^5.44.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "~5.8.2",
