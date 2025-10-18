@@ -5,7 +5,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "hardhat test",
+    "test:watch": "hardhat test --watch",
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost"
   },
   "dependencies": {
     "@fhenixprotocol/contracts": "^0.3.1",
@@ -28,7 +33,9 @@
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
     "buffer": "^6.0.3",
+    "chai": "^6.2.0",
     "dotenv": "^17.2.3",
+    "ethereum-waffle": "^4.0.10",
     "ethers": "^5.8.0",
     "hardhat": "^2.26.3",
     "postcss": "^8.5.6",
