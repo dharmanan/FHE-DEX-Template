@@ -43,15 +43,32 @@ export const useDEX = (): UseDEXReturnType => {
   const connectWallet = useCallback(async () => {
     if ((window as any).ethereum) {
       try {
-        const browserProvider = new ethers.providers.Web3Provider((window as any).ethereum);
-        await browserProvider.send("eth_requestAccounts", []);
+        const ethereum = (window as any).ethereum;
+        
+        // Try to request permissions to allow wallet switching
+        try {
+          await ethereum.request({
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }],
+          });
+        } catch (permError) {
+          // If wallet_requestPermissions fails, try wallet_addEthereumChain or just proceed
+          console.log("wallet_requestPermissions not supported, proceeding with eth_requestAccounts");
+        }
+
+        const browserProvider = new ethers.providers.Web3Provider(ethereum);
+        const accounts = await browserProvider.send("eth_requestAccounts", []);
+        console.log("Connected accounts:", accounts);
+        
         const userSigner = browserProvider.getSigner();
         const address = await userSigner.getAddress();
         const network = await browserProvider.getNetwork();
+        
         setProvider(browserProvider);
         setSigner(userSigner);
         setUserAddress(address);
         setChainId(network.chainId);
+        console.log("Wallet connected:", address, "Chain:", network.chainId);
       } catch (error) {
         console.error("Cüzdan bağlantısı başarısız", error);
         alert("Cüzdan bağlanamadı.");
