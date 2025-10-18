@@ -103,7 +103,7 @@ npm run deploy:sepolia
 ### 5. Run Frontend
 ```bash
 npm run dev
-# Open http://localhost:5173
+# Open http://localhost:3000
 ```
 
 ---
@@ -216,7 +216,7 @@ npm install && npm run dev
 ```bash
 cd examples/vue
 npm install && npm run dev
-# Open http://localhost:5173
+# Open http://localhost:3000
 ```
 
 #### Node.js (CLI)
@@ -229,7 +229,7 @@ node examples/node/index.js
 ```bash
 cd examples/svelte
 npm install && npm run dev
-# Open http://localhost:5173
+# Open http://localhost:3000
 ```
 
 All examples showcase:
@@ -409,7 +409,7 @@ This repository includes a universal FHEVM SDK (`/packages/fhevm-sdk`) and showc
    cd examples/vue
    npm install
    npm run dev
-   # Open http://localhost:5173
+   # Open http://localhost:3000
    ```
 4. Node.js:
    ```
@@ -420,7 +420,7 @@ This repository includes a universal FHEVM SDK (`/packages/fhevm-sdk`) and showc
    cd examples/svelte
    npm install
    npm run dev
-   # Open http://localhost:5173
+   # Open http://localhost:3000
    ```
 
 All examples demonstrate:
