@@ -243,39 +243,69 @@ export const useDEX = (): UseDEXReturnType => {
   }, [handleTransaction, userEthBalance, userTokenBalance, ethReserve, tokenReserve, isLiveMode, signer, provider, refreshOnChainBalances]);
 
   const deposit = useCallback(async (ethAmount: number) => {
+    console.log("🔄 Deposit function called with ETH amount:", ethAmount);
+    console.log("📊 Current state:", { userEthBalance, userTokenBalance, ethReserve, tokenReserve });
+    
     if (ethAmount > userEthBalance) { alert("Insufficient ETH balance."); return; }
     const tokenAmount = (ethAmount / ethReserve) * tokenReserve;
-    if (tokenAmount > userTokenBalance) { alert(`Insufficient ${TOKEN_SYMBOL} balance.`); return; }
+    console.log("💰 Calculated token amount needed:", tokenAmount);
+    
+    // Add 2% buffer for rounding differences
+    const tokenAmountWithBuffer = tokenAmount * 1.02;
+    console.log("💰 Token amount with 2% buffer:", tokenAmountWithBuffer);
+    
+    if (tokenAmountWithBuffer > userTokenBalance) { alert(`Insufficient ${TOKEN_SYMBOL} balance.`); return; }
 
     if (isLiveMode && signer && provider) {
       try {
+        console.log("🚀 Starting live deposit transaction...");
         const tokenContract = new ethers.Contract(ZAMA_TOKEN_ADDRESS, ZAMA_TOKEN_ABI_OBJ, signer);
         const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
         
+        console.log("📋 Contract addresses:", { ZAMA_TOKEN_ADDRESS, DEX_CONTRACT_ADDRESS });
+        console.log("👤 User address:", userAddress);
+        
         // Step 1: Check current allowance
         const currentAllowance = await tokenContract.allowance(userAddress, DEX_CONTRACT_ADDRESS);
-        const requiredAmount = ethers.utils.parseUnits(tokenAmount.toString(), 18);
+        const requiredAmount = ethers.utils.parseUnits(tokenAmountWithBuffer.toString(), 18);
+        
+        console.log("✅ Allowance check:", {
+          currentAllowance: currentAllowance.toString(),
+          requiredAmount: requiredAmount.toString(),
+          needsApproval: currentAllowance.lt(requiredAmount)
+        });
         
         // Step 2: Approve if needed (with extra buffer)
         if (currentAllowance.lt(requiredAmount)) {
           console.log("📝 Approving tokens...");
           const approveTx = await tokenContract.approve(
             DEX_CONTRACT_ADDRESS,
-            ethers.utils.parseUnits((tokenAmount * 1.1).toString(), 18) // 10% buffer
+            ethers.utils.parseUnits((tokenAmountWithBuffer * 1.1).toString(), 18) // 10% buffer
           );
+          console.log("⏳ Waiting for approval transaction...");
           const approveReceipt = await approveTx.wait();
           console.log("✅ Approval confirmed:", approveReceipt?.transactionHash);
+        } else {
+          console.log("✅ Already approved, skipping approval");
         }
         
         // Step 3: Deposit with proper gas handling
-        console.log("💰 Adding liquidity...");
+        console.log("💰 Adding liquidity with params:", {
+          ethAmount: ethAmount.toString(),
+          tokenAmount: tokenAmount.toString(),
+          tokenAmountWithBuffer: tokenAmountWithBuffer.toString(),
+          requiredAmount: requiredAmount.toString(),
+          ethValue: ethers.utils.parseEther(ethAmount.toString()).toString()
+        });
+        
         const depositTx = await dexContract.deposit(
           requiredAmount,
           { 
             value: ethers.utils.parseEther(ethAmount.toString()),
-            gasLimit: 500000 // Explicit gas limit
+            gasLimit: 700000 // Increased gas limit
           }
         );
+        console.log("⏳ Waiting for deposit transaction...");
         const depositReceipt = await depositTx.wait();
         console.log("✅ Liquidity added TX:", depositReceipt?.transactionHash);
         
@@ -283,7 +313,20 @@ export const useDEX = (): UseDEXReturnType => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         await refreshOnChainBalances();
       } catch (err) {
-        console.error("Deposit error:", err);
+        console.error("❌ Deposit error full object:", err);
+        console.error("Error message:", err instanceof Error ? err.message : String(err));
+        
+        // Try to get more details
+        if (err && typeof err === 'object') {
+          console.error("Error data:", {
+            code: (err as any).code,
+            reason: (err as any).reason,
+            method: (err as any).method,
+            transaction: (err as any).transaction,
+            receipt: (err as any).receipt
+          });
+        }
+        
         const errorMsg = err instanceof Error ? err.message : String(err);
         alert("Likidite ekleme başarısız: " + errorMsg);
         return;
