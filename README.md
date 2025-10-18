@@ -1,8 +1,8 @@
 # ZAMA DEX FHE - Privacy-Preserving Decentralized Exchange
 
-**Status**: 🟢 Production-Ready  
-**Network**: Zama FHEVM Testnet (ChainID 8008)  
-**Privacy**: Real Homomorphic Encryption (FHEVM)  
+**Status**: 🟢 Live on Sepolia  
+**Network**: Ethereum Sepolia Testnet (ChainID 11155111)  
+**Note**: Awaiting Zama FHEVM ChainID 8008 public RPC endpoint  
 
 ## 🚀 Quick Links
 
@@ -18,10 +18,10 @@
 
 ## ℹ️ Project Status
 
-**Frontend**: ✅ Production build ready  
-**Smart Contracts**: ✅ Compiled and verified for Zama FHEVM  
+**Frontend**: ✅ Production build on Vercel  
+**Smart Contracts**: ✅ Deployed to Sepolia Testnet  
 **Tests**: ✅ 8/8 passing (offline compilation checks)  
-**Deployment**: 🚀 Ready for Zama testnet  
+**Status**: 🚀 Live and Testing on Sepolia  
 
 This project is a **complete FHE-powered DEX** using **Zama FHEVM** for privacy-preserving trading.
 
@@ -97,18 +97,18 @@ npm run dev
 # Open http://localhost:5173
 ```
 
-### Deploy Contract (Optional)
+### Deploy Contract
 
-**Deploy Fhenix Version:**
+**Current (Sepolia):**
 ```bash
-# Requires Sepolia ETH and private key in .env
-npx hardhat run scripts/deploy-fhedex-real.js --network sepolia
+# Already deployed, see addresses above
+# To redeploy: npx hardhat run scripts/deploy-and-configure.js --network sepolia
 ```
 
-**Deploy Zama FHEVM Version:**
+**Future (Zama FHEVM - ChainID 8008):**
 ```bash
-# Build for Zama testnet
-npx hardhat run scripts/deploy.js --network zama_fhevm
+# Awaiting public RPC endpoint
+# Will deploy with: npx hardhat run scripts/deploy-and-configure.js --network zama_fhevm
 ```
 
 ---
@@ -118,7 +118,6 @@ npx hardhat run scripts/deploy.js --network zama_fhevm
 | Document | Content |
 |----------|---------|
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Technical design, FHE integration, data flows |
-| **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Deployment instructions and setup |
 | **[BUILDER_TRACK_SUBMISSION.md](./BUILDER_TRACK_SUBMISSION.md)** | Complete submission documentation |
 
 ---
@@ -220,26 +219,21 @@ npm run test:watch
 
 ## 🌐 Network Configuration
 
-### Zama FHEVM Testnet
-- **Network**: Zama FHEVM Testnet
-- **ChainId**: 8008  
-- **RPC**: https://testnet-rpc.zama.ai:8545
-- **Contract Version**: FHEDEX.sol
-- **Status**: ✅ Deployment ready
+### Current Deployment (Sepolia Testnet)
+- **Network**: Ethereum Sepolia
+- **ChainId**: 11155111  
+- **RPC**: https://eth-sepolia.public.blastapi.io
+- **Status**: ✅ Live
+- **Contracts**:
+  - ZamaToken: `0x8B5713e21d09aB4E535dE5dCCCd1C21f8d179230`
+  - FHEDEX DEX: `0x46513f306Fef0Ccc48485497e16113CA7A1a6BcF`
 
-### Hardhat Configuration
-Networks configured in `hardhat.config.js`:
-```javascript
-networks: {
-  zama_fhevm: {
-    url: "https://testnet-rpc.zama.ai:8545",
-    chainId: 8008
-  },
-  hardhat: {
-    allowUnlimitedContractSize: true
-  }
-}
-```
+### Target Network (Zama FHEVM - Awaiting Public RPC)
+- **Network**: Zama FHEVM Testnet
+- **ChainId**: 8008
+- **RPC**: testnet-rpc.zama.ai:8545 (currently unavailable - awaiting public endpoint)
+- **Status**: ⏳ Configured, awaiting network availability
+- **Privacy**: Real Homomorphic Encryption (euint64 support)
 
 ---
 
