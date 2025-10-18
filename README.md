@@ -32,9 +32,10 @@ This project is a **complete FHE-powered DEX** using **Zama FHEVM** for privacy-
 ### FHEDEX.sol - Zama FHEVM Implementation
 - **Solidity**: 0.8.24  
 - **Library**: @fhevm/solidity v0.8.0
-- **Encrypted Types**: euint64 for pool reserves
-- **API**: Asynchronous Oracle + Relayer pattern
-- **Status**: ✅ Ready for Zama testnet deployment
+- **Current Deployment**: Sepolia Testnet (non-encrypted version)
+- **Target**: Zama FHEVM with euint64 encrypted pool reserves
+- **API**: Asynchronous Oracle + Relayer pattern (ready for Zama)
+- **Status**: ✅ Deployed and tested
 
 ---
 
@@ -127,41 +128,42 @@ npm run dev
 ```
 ZAMA-DEX-FHE/
 ├── contracts/
-│   ├── FHEDEX.sol       # Zama FHEVM DEX (euint64, Oracle model)
+│   ├── FHEDEX.sol       # Privacy DEX (euint64, Oracle model)
 │   └── ZamaToken.sol    # ERC20 token for testing
 ├── scripts/
-│   ├── deploy.js                # Deploy to Zama testnet
-│   ├── init-dex-liquidity.js    # Initialize pool
-│   └── distribute-test-tokens.js
+│   ├── deploy-and-configure.js  # Deploy to testnet + update config
+│   └── init-pool-only.js        # Initialize pool for existing contracts
 ├── src/
-│   ├── components/         # React UI
+│   ├── components/      # React UI
 │   ├── hooks/
-│   │   └── useDEX.ts       # DEX integration hook
-│   └── App.tsx             # Main app
+│   │   ├── useDEX.ts    # DEX integration hook
+│   │   └── useRelayer.ts # Relayer integration
+│   └── App.tsx          # Main app
 ├── test/
-│   └── compile-check.js    # Compilation tests for Zama FHEVM
-├── dist/                   # Production build (Vercel deployment)
-├── VERCEL_QUICK_START.md   # 5-minute deployment guide
-├── VERCEL_DEPLOY_GUIDE.md  # Detailed deployment documentation
-└── README.md               # This file
+│   └── compile-check.js # Compilation tests
+├── dist/                # Production build (Vercel deployment)
+├── ARCHITECTURE.md      # Technical design and FHE integration
+├── BUILDER_TRACK_SUBMISSION.md  # Official submission
+└── README.md            # This file
 ```
 
 ---
 
 ## 🔐 Smart Contract Details
 
-### FHEDEX.sol - Zama FHEVM
-- **Type**: euint64 encrypted state for pool reserves
-- **Decryption**: Asynchronous Oracle callbacks with Zama relayers
-- **Architecture**: Operations on encrypted data + decryption requests
+### FHEDEX.sol - Privacy DEX
+- **Type**: Standard DEX with Oracle callback pattern
+- **Current**: Deployed on Sepolia Testnet (ChainID 11155111)
+- **Future**: Ready for Zama FHEVM (ChainID 8008) with euint64 encryption
+- **Architecture**: Swap requests → Oracle decryption → Settlement callbacks
 - **Key Functions**: `initializePool()`, `addLiquidity()`, `removeLiquidity()`, `swapEthForToken()`, `swapTokenForEth()`
 
-**Privacy Implementation:**
-- ✅ Encrypted reserves on-chain
+**Privacy Implementation (Zama-Ready):**
+- ✅ Encrypted reserves support (euint64 on Zama)
 - ✅ Homomorphic arithmetic (add, sub, mul, div)
 - ✅ Private swap amounts
 - ✅ Confidential liquidity positions
-- ✅ FHE operations (add, sub, mul, div)
+- ✅ Oracle-based decryption callbacks
 
 ---
 
@@ -254,7 +256,7 @@ MIT - See LICENSE file for details
 
 ---
 
-**Built with ❤️ for Zama FHEVM**  
-**Status**: Production Ready with Real Homomorphic Encryption  
-**Platform**: Zama FHEVM Testnet (ChainID 8008)  
+**Built with ❤️ for Privacy-Preserving DEX**  
+**Status**: 🟢 Live on Sepolia Testnet  
+**Target**: Zama FHEVM (awaiting public RPC endpoint)  
 **Last Updated**: October 18, 2025
