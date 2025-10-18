@@ -2,7 +2,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "env": [
-    "VITE_CONTRACT_ADDRESSES"
-  ]
+  "framework": "vite",
+  "env": {
+    "VITE_ZAMA_TOKEN_ADDRESS": "@vite_zama_token_address",
+    "VITE_DEX_ADDRESS": "@vite_dex_address",
+    "VITE_NETWORK_ID": "@vite_network_id",
+    "VITE_NETWORK_NAME": "@vite_network_name",
+    "VITE_RPC_URL": "@vite_rpc_url"
+  }
 }
