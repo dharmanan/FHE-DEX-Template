@@ -114,6 +114,8 @@ npm run dev
 |----------|---------|
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Detailed technical design, smart contract breakdown, FHEVM integration, data flows, security considerations |
 | **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** | Step-by-step Sepolia deployment, environment setup, testing, verification |
+| **[VERIFICATION_AND_DEPLOYMENT.md](./VERIFICATION_AND_DEPLOYMENT.md)** | Deployment summary and Etherscan verification methods |
+| **[ETHERSCAN_VERIFICATION_STEPS.md](./ETHERSCAN_VERIFICATION_STEPS.md)** | Detailed step-by-step Etherscan verification tutorial |
 | **[contracts/DEX.sol](./contracts/DEX.sol)** | Fully documented smart contract with inline comments |
 | **[test/DEX.test.js](./test/DEX.test.js)** | 11 comprehensive unit tests covering all contract functions |
 
