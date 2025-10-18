@@ -1,54 +1,261 @@
 # Vercel Deployment Guide
 
-Bu rehber ZAMA DEX FHE'yi Vercel'de yayınlamak için adım-adım talimatlar içerir.
+This guide explains how to deploy ZAMA DEX FHE to Vercel for production.
 
 ## Prerequisites
 
-1. **GitHub Account** - Repository'nin bağlı olması gerekir
-2. **Vercel Account** - Ücretsiz: https://vercel.com
-3. **Repository** - Bu proje GitHub'da public olmalı
+- Vercel account (https://vercel.com)
+- GitHub account with repository pushed
+- Environment variables ready
 
-## Step 1: GitHub'a Push
+## Current Deployment Status
 
-Tüm değişikliklerin GitHub'a pushlandığından emin olun:
+✅ **Smart Contracts Deployed (Sepolia Testnet)**
+- ZamaToken: `0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636`
+- DEX: `0x1F1B2d3BDCe3674164eD34F1313a62486764CD19`
+- Network: Sepolia (ChainID: 11155111)
+
+✅ **Pool Status** (October 18, 2025)
+- ETH Reserve: 0.2 ETH
+- Token Reserve: 1007 ZAMA
+- Exchange Rate: 1 ETH ≈ 5035 ZAMA
+- Total LP Tokens: 0.2
+
+✅ **Frontend Ready for Deployment**
+- Build optimized with Vite
+- Environment variables configured
+- Production build tested
+
+## Step-by-Step Deployment
+
+### 1. Connect to Vercel
 
 ```bash
-git status
-git add -A
-git commit -m "Production ready for Vercel deployment"
-git push origin main
+# Option A: Via Web UI
+# 1. Visit https://vercel.com/dashboard
+# 2. Click "New Project"
+# 3. Import from GitHub: dharmanan/ZAMA-DEX-FHE
+# 4. Select "main" branch
+
+# Option B: Via CLI
+vercel
 ```
 
-## Step 2: Vercel'e Connect Olun
+### 2. Configure Environment Variables
 
-### 2.1 Vercel'e Giriş
-- https://vercel.com adresine gidin
-- GitHub ile sign up / sign in yapın
-
-### 2.2 Projeyi Import Edin
-1. Dashboard'da "Add New" → "Project" tıklayın
-2. "Import Git Repository" seçin
-3. GitHub'dan `ZAMA-DEX-FHE` projesini seçin
-4. "Import" tıklayın
-
-## Step 3: Environment Variables Ayarla
-
-### 3.1 Vercel Dashboard'da
-1. Project → Settings → "Environment Variables" sayfasına gidin
-2. Aşağıdaki değişkenleri ekleyin:
+In Vercel Dashboard → Settings → Environment Variables, add:
 
 ```
-VITE_ZAMA_TOKEN_ADDRESS=0xb2B26a1222D5c02a081cBDC06277D71BD50927e6
-VITE_DEX_ADDRESS=0x50B85A4A3c76be5B36c1CfA04B1AFc44dd1EBE7c
+VITE_ZAMA_TOKEN_ADDRESS=0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636
+VITE_DEX_ADDRESS=0x1F1B2d3BDCe3674164eD34F1313a62486764CD19
 VITE_NETWORK_ID=11155111
 VITE_NETWORK_NAME=sepolia
 VITE_RPC_URL=https://sepolia.infura.io/v3/392b6fec32744b34a4850eb2ce3cea2c
 ```
 
-3. "Save" tıklayın
+**Important**: These variables should be available in all environments (Production, Preview, Development).
 
-### 3.2 Deployment Configuration
-Vercel otomatik olarak `vercel.json` dosyasından ayarları okuyacaktır:
+### 3. Deployment Settings
+
+**Build Command**: `npm run build`
+**Output Directory**: `dist`
+**Install Command**: `npm install`
+
+These are already configured in `vercel.json`.
+
+### 4. Deploy
+
+```bash
+vercel --prod
+```
+
+Or use the web interface to manually trigger deployment.
+
+### 5. Verify Deployment
+
+After deployment completes:
+
+1. Visit your Vercel URL (e.g., `https://zama-dex-fhe.vercel.app`)
+2. Check browser console (F12 → Console)
+3. Look for logs showing contract addresses loaded correctly
+4. Switch to Live Mode and test with MetaMask on Sepolia
+
+## Testing on Production
+
+### Prerequisites for Testing
+
+1. **MetaMask Wallet**
+   - Switch to Sepolia Testnet
+   - Have some Sepolia ETH (from faucet)
+
+2. **ZAMA Tokens**
+   
+   Option A: Get from DEX Pool (via Swap)
+   - Send ETH to DEX
+   - Receive ZAMA from pool (0.1 ETH = 500 ZAMA ratio)
+   
+   Option B: Get from Distributor
+   ```bash
+   npm run distribute:tokens
+   ```
+   Then add test user addresses to `scripts/distribute-test-tokens.js`
+
+   Option C: Request from Deployer
+   - Contact deployer at: 0x20cDAd07152eF163CAd9Be2cDe1766298B883d71
+   - Include wallet address
+
+### Test Operations
+
+1. **Deposit Liquidity**
+   - Send 0.01 ETH + proportional ZAMA
+   - Receive LP tokens
+   
+2. **Swap ETH → ZAMA**
+   - Send ETH, receive ZAMA tokens
+   
+3. **Swap ZAMA → ETH**
+   - Send ZAMA tokens, receive ETH
+   
+4. **Withdraw Liquidity**
+   - Burn LP tokens, receive ETH + ZAMA
+
+## Getting Test Tokens
+
+### Method 1: Swap at DEX (Recommended for Testing)
+
+Current Pool State:
+- ETH Reserve: 0.2 ETH
+- Token Reserve: 1007 ZAMA
+- Exchange Rate: 1 ETH ≈ 5035 ZAMA
+
+Steps:
+1. Get Sepolia ETH from faucet (https://faucet.sepolia.dev)
+2. Go to deployed app
+3. Enable Live Mode
+4. Swap ETH → ZAMA
+5. You'll receive ZAMA tokens instantly
+
+### Method 2: Token Distribution Script
+
+If you have deployer access:
+
+```bash
+# Edit scripts/distribute-test-tokens.js
+# Add test user addresses to TEST_USERS array
+
+npm run distribute:tokens
+```
+
+### Method 3: Direct Transfer
+
+If you have ZAMA tokens:
+
+```bash
+# Via Etherscan
+# 1. Go to: https://sepolia.etherscan.io/token/0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636
+# 2. Click "Write Contract"
+# 3. Connect wallet (must be token owner or have approval)
+# 4. Call transfer() function
+```
+
+## Troubleshooting
+
+### Contract Address Not Loading
+
+**Problem**: App shows "0x0000..." addresses
+
+**Solution**: 
+- Check environment variables in Vercel settings
+- Verify `.env.production` file locally
+- Restart deployment
+
+### MetaMask Not Connecting
+
+**Problem**: "Connect Wallet" button doesn't work
+
+**Solution**:
+- Ensure MetaMask is installed
+- Switch to Sepolia Testnet in MetaMask
+- Try connecting again
+
+### Transaction Fails
+
+**Problem**: "Transaction likely to fail" error
+
+**Solution**:
+- Ensure you have Sepolia ETH balance
+- Ensure you have ZAMA token balance
+- Check gas price is reasonable
+- Verify contract addresses are correct
+
+### Insufficient Balance Errors
+
+**Problem**: "Insufficient ETH balance" or "Insufficient ZAMA balance"
+
+**Solution**:
+- Verify actual balance on-chain (Etherscan)
+- Refresh page and check again
+- Get more test tokens via swap or distribution
+
+## Live Deployment
+
+Once deployed, testers can access:
+
+- **Frontend URL**: `https://your-project.vercel.app`
+- **View on Etherscan**: 
+  - ZamaToken: https://sepolia.etherscan.io/address/0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636
+  - DEX: https://sepolia.etherscan.io/address/0x1F1B2d3BDCe3674164eD34F1313a62486764CD19
+
+## For Zama Builder Track Reviewers
+
+### Complete Testing Checklist
+
+✅ **Setup**
+- [ ] Visit deployed URL
+- [ ] See contract addresses in console
+- [ ] See initial reserves: 0.1 ETH, 500 ZAMA
+
+✅ **Wallet Connection**
+- [ ] Enable Live Mode
+- [ ] MetaMask popup appears
+- [ ] Wallet connects successfully
+- [ ] Balances update correctly
+
+✅ **Swap ETH → ZAMA**
+- [ ] Input 0.01 ETH
+- [ ] See ZAMA output calculation
+- [ ] Swap transaction succeeds
+- [ ] ZAMA balance increases
+- [ ] Reserves update
+
+✅ **Deposit Liquidity**
+- [ ] Input 0.005 ETH
+- [ ] See proportional ZAMA needed
+- [ ] Deposit succeeds
+- [ ] Receive LP tokens
+- [ ] Reserves increase
+
+✅ **Withdraw Liquidity**
+- [ ] Input LP token amount
+- [ ] See ETH + ZAMA to receive
+- [ ] Withdrawal succeeds
+- [ ] Get ETH and ZAMA back
+- [ ] Reserves decrease
+
+### Support
+
+If issues occur:
+1. Check browser console (F12 → Console)
+2. Note any error messages
+3. File issue on GitHub: https://github.com/dharmanan/ZAMA-DEX-FHE/issues
+4. Include wallet address and transaction hash if available
+
+---
+
+**Deployed**: October 18, 2025
+**Updated**: October 18, 2025
+**Network**: Sepolia Testnet
+
 - Build Command: `npm run build`
 - Output Directory: `dist`
 - Install Command: `npm install`

@@ -14,15 +14,19 @@
 | **Deployment Guide** | [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | ✅ Complete |
 | **Smart Contract Tests** | [npm test](./test/) | ✅ 11/11 passing |
 
-### Live Contract Addresses (Sepolia Testnet)
+### Live Contract Addresses (Sepolia Testnet - October 18, 2025)
 
 | Contract | Address | Etherscan |
 |----------|---------|-----------|
-| **ZamaToken (ERC20)** | `0xb2B26a1222D5c02a081cBDC06277D71BD50927e6` | [View on Etherscan](https://sepolia.etherscan.io/address/0xb2B26a1222D5c02a081cBDC06277D71BD50927e6) |
-| **DEX (AMM)** | `0x50B85A4A3c76be5B36c1CfA04B1AFc44dd1EBE7c` | [View on Etherscan](https://sepolia.etherscan.io/address/0x50B85A4A3c76be5B36c1CfA04B1AFc44dd1EBE7c) |
+| **ZamaToken (ERC20)** | `0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636` | [View on Etherscan](https://sepolia.etherscan.io/address/0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636) |
+| **DEX (AMM)** | `0x1F1B2d3BDCe3674164eD34F1313a62486764CD19` | [View on Etherscan](https://sepolia.etherscan.io/address/0x1F1B2d3BDCe3674164eD34F1313a62486764CD19) |
 | **Deployer** | `0x20cDAd07152eF163CAd9Be2cDe1766298B883d71` | [View on Etherscan](https://sepolia.etherscan.io/address/0x20cDAd07152eF163CAd9Be2cDe1766298B883d71) |
 
-**Deployment Date**: October 18, 2025
+**Pool State** (Updated October 18, 2025):
+- ETH Reserve: 0.2 ETH
+- Token Reserve: 1007 ZAMA
+- Exchange Rate: 1 ETH ≈ 5035 ZAMA
+- Total LP Tokens: 0.2
 
 > **For Verification**: See [VERIFICATION_AND_DEPLOYMENT.md](./VERIFICATION_AND_DEPLOYMENT.md) for Etherscan verification steps and contract interaction guides.
 
@@ -105,6 +109,37 @@ npm run deploy:sepolia
 npm run dev
 # Open http://localhost:3000
 ```
+
+### 6. Get Test Tokens (for deployment testing)
+
+```bash
+# Edit scripts/distribute-test-tokens.js
+# Add test user wallet addresses to TEST_USERS array
+
+# Run distribution script
+npm run distribute:tokens
+```
+
+---
+
+## 🎁 Getting Test Tokens
+
+For testing the live deployment, you have several options:
+
+### Option A: Get from DEX Pool (Recommended)
+1. Get Sepolia ETH from faucet: https://faucet.sepolia.dev
+2. Visit deployed app
+3. Enable Live Mode and connect MetaMask
+4. Swap ETH → ZAMA tokens (1 ETH = 5000 ZAMA)
+
+### Option B: Request from Deployer
+- Each user gets 5 ZAMA tokens
+- Edit `scripts/distribute-test-tokens.js` with wallet addresses
+- Run: `npm run distribute:tokens`
+
+### Option C: View on Etherscan
+- ZamaToken: https://sepolia.etherscan.io/token/0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636
+- DEX Pool: https://sepolia.etherscan.io/address/0x1F1B2d3BDCe3674164eD34F1313a62486764CD19
 
 ---
 
