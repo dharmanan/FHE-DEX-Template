@@ -16,8 +16,10 @@
   },
   "dependencies": {
     "@fhenixprotocol/contracts": "^0.3.1",
+    "@fhevm/solidity": "^0.8.0",
     "@google/genai": "^1.24.0",
     "@openzeppelin/contracts": "^5.4.0",
+    "@zama-fhe/oracle-solidity": "^0.2.0",
     "process": "^0.11.10",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
