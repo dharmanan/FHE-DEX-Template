@@ -23,22 +23,29 @@ contract DEX {
     }
 
     function deposit(uint _tokenAmount) public payable {
+        require(msg.value > 0, "ETH amount must be > 0");
+        require(_tokenAmount > 0, "Token amount must be > 0");
+        
         if (totalLiquidity == 0) {
-            require(msg.value > 0 && _tokenAmount > 0, "Invalid initial liquidity");
-            totalLiquidity = address(this).balance;
-            liquidity[msg.sender] += msg.value;
-            token.transferFrom(msg.sender, address(this), _tokenAmount);
+            // First deposit - initialize with both assets
+            totalLiquidity = msg.value;
+            liquidity[msg.sender] = msg.value;
+            require(token.transferFrom(msg.sender, address(this), _tokenAmount), "Token transfer failed");
             emit Deposit(msg.sender, msg.value, _tokenAmount, msg.value);
         } else {
+            // Subsequent deposits - maintain ratio
             uint ethReserve = address(this).balance - msg.value;
             uint tokenReserve = token.balanceOf(address(this));
             require(ethReserve > 0 && tokenReserve > 0, "Reserves cannot be zero");
+            
             uint expectedTokenAmount = (msg.value * tokenReserve) / ethReserve;
             require(_tokenAmount >= expectedTokenAmount, "Insufficient token amount");
+            
             uint lpTokensToMint = (msg.value * totalLiquidity) / ethReserve;
             liquidity[msg.sender] += lpTokensToMint;
             totalLiquidity += lpTokensToMint;
-            token.transferFrom(msg.sender, address(this), _tokenAmount);
+            
+            require(token.transferFrom(msg.sender, address(this), _tokenAmount), "Token transfer failed");
             emit Deposit(msg.sender, msg.value, _tokenAmount, lpTokensToMint);
         }
     }

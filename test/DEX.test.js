@@ -61,7 +61,7 @@ describe("DEX", () => {
 
     it("Should reject invalid liquidity amounts", async () => {
       await expect(dex.deposit(0, { value: 0 })).to.be.revertedWith(
-        "Invalid initial liquidity"
+        "ETH amount must be > 0"
       );
     });
   });
