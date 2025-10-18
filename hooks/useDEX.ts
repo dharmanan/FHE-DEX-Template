@@ -37,6 +37,7 @@ export const useDEX = (): UseDEXReturnType => {
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [provider, setProvider] = useState<providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<Signer | null>(null);
+  const [chainId, setChainId] = useState<number | null>(null);
   const simulatedWallet = new ethers.Wallet(SIMULATED_WALLET_PRIVATE_KEY);
 
   const connectWallet = useCallback(async () => {
@@ -46,9 +47,11 @@ export const useDEX = (): UseDEXReturnType => {
         await browserProvider.send("eth_requestAccounts", []);
         const userSigner = browserProvider.getSigner();
         const address = await userSigner.getAddress();
+        const network = await browserProvider.getNetwork();
         setProvider(browserProvider);
         setSigner(userSigner);
         setUserAddress(address);
+        setChainId(network.chainId);
       } catch (error) {
         console.error("Cüzdan bağlantısı başarısız", error);
         alert("Cüzdan bağlanamadı.");
@@ -56,6 +59,13 @@ export const useDEX = (): UseDEXReturnType => {
     } else {
       alert("Lütfen MetaMask kurun!");
     }
+  }, []);
+
+  const disconnectWallet = useCallback(() => {
+    setUserAddress(null);
+    setProvider(null);
+    setSigner(null);
+    setChainId(null);
   }, []);
 
   const fhevmService = new FhevmService(isLiveMode);
@@ -385,10 +395,13 @@ export const useDEX = (): UseDEXReturnType => {
     TOKEN_SYMBOL,
     TOKEN_NAME,
     userAddress,
+    chainId,
     setIsLiveMode,
     swap,
     deposit,
     withdraw,
     clearTransactionSummary,
+    connectWallet,
+    disconnectWallet,
   };
 };
