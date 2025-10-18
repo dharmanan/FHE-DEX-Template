@@ -26,11 +26,15 @@ async function main() {
   const network = await ethers.provider.getNetwork();
   console.log('🌐 Network:', network.name, 'ChainID:', network.chainId);
   
-  if (network.chainId !== 8008) {
-    console.error('❌ ERROR: This script is for Zama testnet (ChainID 8008) only!');
+  // Allow both Zama (8008) and Sepolia (11155111) for testing
+  if (network.chainId !== 8008 && network.chainId !== 11155111) {
+    console.error('❌ ERROR: This script is for Zama testnet (8008) or Sepolia (11155111) only!');
     console.error('   Current chain ID:', network.chainId);
-    console.error('   Run with: --network zama_fhevm');
     process.exit(1);
+  }
+  
+  if (network.chainId === 11155111) {
+    console.log('⚠️  WARNING: Deploying to Sepolia (testing only - FHE features not available)');
   }
 
   console.log('\n───────────────────────────────────────────────────────────────────\n');
