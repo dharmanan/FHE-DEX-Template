@@ -19,11 +19,11 @@ async function main() {
   console.log('╚════════════════════════════════════════════════════════════════════╝\n');
 
   // Get deployer account
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log('📝 Deployer Account:', deployer.address);
 
   // Get network info
-  const network = await ethers.provider.getNetwork();
+  const network = await hre.ethers.provider.getNetwork();
   console.log('🌐 Network:', network.name, 'ChainID:', network.chainId);
   
   // Allow both Zama (8008) and Sepolia (11155111) for testing
@@ -41,7 +41,7 @@ async function main() {
 
   // Step 1: Deploy ZamaToken
   console.log('📦 Step 1: Deploying ZamaToken...');
-  const ZamaToken = await ethers.getContractFactory('ZamaToken');
+  const ZamaToken = await hre.ethers.getContractFactory('ZamaToken');
   const zamaToken = await ZamaToken.deploy();
   await zamaToken.deployed();
   const zamaTokenAddress = zamaToken.address;
@@ -50,7 +50,7 @@ async function main() {
 
   // Step 2: Deploy FHEDEX
   console.log('\n📦 Step 2: Deploying FHEDEX...');
-  const FHEDEX = await ethers.getContractFactory('FHEDEX');
+  const FHEDEX = await hre.ethers.getContractFactory('FHEDEX');
   const fhedex = await FHEDEX.deploy(zamaTokenAddress);
   await fhedex.deployed();
   const fhedexAddress = fhedex.address;
@@ -59,8 +59,8 @@ async function main() {
 
   // Step 3: Initialize Pool
   console.log('\n📦 Step 3: Initializing Pool...');
-  const initialTokenAmount = ethers.utils.parseUnits('1000', 18);
-  const initialEthAmount = ethers.utils.parseEther('10');
+  const initialTokenAmount = hre.ethers.utils.parseUnits('1000', 18);
+  const initialEthAmount = hre.ethers.utils.parseEther('10');
 
   // Approve tokens
   console.log('   ├─ Approving tokens...');
@@ -79,8 +79,8 @@ async function main() {
   // Verify pool
   console.log('   └─ Verifying pool...');
   const reserves = await fhedex.getPoolReserves();
-  console.log('       ETH Reserve:', ethers.utils.formatEther(reserves[0]), 'ETH');
-  console.log('       Token Reserve:', ethers.utils.formatUnits(reserves[1], 18), 'ZAMA');
+  console.log('       ETH Reserve:', hre.ethers.utils.formatEther(reserves[0]), 'ETH');
+  console.log('       Token Reserve:', hre.ethers.utils.formatUnits(reserves[1], 18), 'ZAMA');
 
   console.log('\n───────────────────────────────────────────────────────────────────\n');
 
@@ -97,8 +97,8 @@ async function main() {
     fhedex: fhedexAddress,
     deployedAt: new Date().toISOString(),
     initialLiquidity: {
-      eth: ethers.utils.formatEther(initialEthAmount),
-      tokens: ethers.utils.formatUnits(initialTokenAmount, 18),
+      eth: hre.ethers.utils.formatEther(initialEthAmount),
+      tokens: hre.ethers.utils.formatUnits(initialTokenAmount, 18),
     },
   };
 
