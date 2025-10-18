@@ -3,7 +3,6 @@ import type { providers, Signer } from 'ethers';
 import { ethers } from 'ethers';
 import type { UseDEXReturnType, TransactionDetails } from '../types';
 import { FhevmService } from '../services/fhevmService';
-import { GeminiService } from '../services/geminiService';
 import { 
   TOKEN_NAME, 
   TOKEN_SYMBOL, 
@@ -86,7 +85,6 @@ export const useDEX = (): UseDEXReturnType => {
   }, []);
 
   const fhevmService = new FhevmService(isLiveMode);
-  const geminiService = new GeminiService();
   
   // --- MODE CHANGE EFFECT ---
   useEffect(() => {
@@ -114,8 +112,6 @@ export const useDEX = (): UseDEXReturnType => {
     setIsLoading(true);
     setIsSummaryLoading(true);
     setTransactionSummary(null);
-
-    const geminiPromise = geminiService.generateTransactionSummary(details);
 
     try {
       if (isLiveMode) {
@@ -158,7 +154,12 @@ export const useDEX = (): UseDEXReturnType => {
         setUserEthBalance((b: number) => b + ethWithdrawn);
         setUserTokenBalance((b: number) => b + tokenWithdrawn);
       }
-      const summary = await geminiPromise;
+
+      // Generate basic transaction summary
+      let summary = `## ✅ Transaction Processed (Dummy)\n`;
+      summary += `- Type: ${details.type}\n`;
+      summary += `- Input: ${details.inputAmount.toFixed(4)} ${details.inputAsset}\n`;
+      summary += `- Output: ${details.outputAmount.toFixed(4)} ${details.inputAsset === 'ETH' ? 'ZAMA' : 'ETH'}\n`;
       setTransactionSummary(summary);
     } catch (error) {
       console.error("Transaction Error:", error);
@@ -168,7 +169,7 @@ export const useDEX = (): UseDEXReturnType => {
       setIsLoading(false);
       setIsSummaryLoading(false);
     }
-  }, [isLiveMode, ethReserve, tokenReserve, totalLiquidity, fhevmService, geminiService]);
+  }, [isLiveMode, ethReserve, tokenReserve, totalLiquidity, fhevmService]);
 
   const refreshOnChainBalances = useCallback(async () => {
     if (!provider || !signer || !userAddress) return;
