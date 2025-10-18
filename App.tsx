@@ -16,6 +16,9 @@ export default function App() {
             isLiveMode={dex.isLiveMode} 
             setIsLiveMode={dex.setIsLiveMode}
             userAddress={dex.userAddress}
+            chainId={dex.chainId}
+            onConnectWallet={dex.connectWallet}
+            onDisconnectWallet={dex.disconnectWallet}
         />
         
         <main className="mt-8">
