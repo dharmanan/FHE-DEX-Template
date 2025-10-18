@@ -35,6 +35,7 @@ interface DexState {
 interface DexActions {
   refreshBalances: () => Promise<void>;
   refreshPoolState: () => Promise<void>;
+  swap: (amount: number, inputAsset: 'ETH' | 'TOKEN') => Promise<void>;
   swapEthForToken: (amount: string) => Promise<string>;
   swapTokenForEth: (amount: string) => Promise<string>;
   addLiquidity: (ethAmount: string, tokenAmount: string) => Promise<string>;
@@ -423,6 +424,20 @@ export function useDEX(config: DexConfig): UseDexReturn {
     [isInitialized, refreshBalances, refreshPoolState]
   );
 
+  /**
+   * Generic swap function - routes to appropriate swap method based on asset direction
+   */
+  const swap = useCallback(
+    async (amount: number, inputAsset: 'ETH' | 'TOKEN') => {
+      if (inputAsset === 'ETH') {
+        await swapEthForToken(amount.toString());
+      } else {
+        await swapTokenForEth(amount.toString());
+      }
+    },
+    [swapEthForToken, swapTokenForEth]
+  );
+
   // Return state and actions
   return {
     // State
@@ -446,6 +461,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
     initialize,
     refreshBalances,
     refreshPoolState,
+    swap,
     swapEthForToken,
     swapTokenForEth,
     addLiquidity,
