@@ -206,15 +206,33 @@ export const useDEX = (): UseDEXReturnType => {
         try {
           const tokenContract = new ethers.Contract(ZAMA_TOKEN_ADDRESS, ZAMA_TOKEN_ABI_OBJ, signer);
           const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
-          // Onay ver
-          const approveTx = await tokenContract.approve(DEX_CONTRACT_ADDRESS, ethers.utils.parseUnits(inputAmount.toString(), 18));
-          await approveTx.wait();
-          // Swap işlemi (yeni fonksiyon)
-          const swapTx = await dexContract.tokenToEthSwap(ethers.utils.parseUnits(inputAmount.toString(), 18));
+          
+          // Check current allowance
+          const currentAllowance = await tokenContract.allowance(userAddress, DEX_CONTRACT_ADDRESS);
+          const requiredAmount = ethers.utils.parseUnits(inputAmount.toString(), 18);
+          
+          // Approve if needed
+          if (currentAllowance.lt(requiredAmount)) {
+            console.log("📝 Approving tokens for swap...");
+            const approveTx = await tokenContract.approve(DEX_CONTRACT_ADDRESS, requiredAmount);
+            await approveTx.wait();
+            console.log("✅ Approval confirmed");
+          }
+          
+          // Swap işlemi with gas limit
+          console.log("🔄 Executing token-to-ETH swap...");
+          const swapTx = await dexContract.tokenToEthSwap(
+            requiredAmount,
+            { gasLimit: 500000 }
+          );
           await swapTx.wait();
+          console.log("✅ Swap completed");
+          
           // Zincirden bakiyeleri güncelle
+          await new Promise(resolve => setTimeout(resolve, 1000));
           await refreshOnChainBalances();
         } catch (err) {
+          console.error("Swap error:", err);
           alert("Swap işlemi başarısız: " + (err instanceof Error ? err.message : String(err)));
           return;
         }
@@ -231,23 +249,49 @@ export const useDEX = (): UseDEXReturnType => {
 
     if (isLiveMode && signer && provider) {
       try {
-        // Önce approve
         const tokenContract = new ethers.Contract(ZAMA_TOKEN_ADDRESS, ZAMA_TOKEN_ABI_OBJ, signer);
         const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
-        const approveTx = await tokenContract.approve(DEX_CONTRACT_ADDRESS, ethers.utils.parseUnits(tokenAmount.toString(), 18));
-        await approveTx.wait();
-        // Deposit işlemi
-        const depositTx = await dexContract.deposit(ethers.utils.parseUnits(tokenAmount.toString(), 18), { value: ethers.utils.parseEther(ethAmount.toString()) });
-        await depositTx.wait();
+        
+        // Step 1: Check current allowance
+        const currentAllowance = await tokenContract.allowance(userAddress, DEX_CONTRACT_ADDRESS);
+        const requiredAmount = ethers.utils.parseUnits(tokenAmount.toString(), 18);
+        
+        // Step 2: Approve if needed (with extra buffer)
+        if (currentAllowance.lt(requiredAmount)) {
+          console.log("📝 Approving tokens...");
+          const approveTx = await tokenContract.approve(
+            DEX_CONTRACT_ADDRESS,
+            ethers.utils.parseUnits((tokenAmount * 1.1).toString(), 18) // 10% buffer
+          );
+          const approveReceipt = await approveTx.wait();
+          console.log("✅ Approval confirmed:", approveReceipt?.transactionHash);
+        }
+        
+        // Step 3: Deposit with proper gas handling
+        console.log("💰 Adding liquidity...");
+        const depositTx = await dexContract.deposit(
+          requiredAmount,
+          { 
+            value: ethers.utils.parseEther(ethAmount.toString()),
+            gasLimit: 500000 // Explicit gas limit
+          }
+        );
+        const depositReceipt = await depositTx.wait();
+        console.log("✅ Liquidity added TX:", depositReceipt?.transactionHash);
+        
+        // Step 4: Refresh balances
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await refreshOnChainBalances();
       } catch (err) {
-        alert("Likidite ekleme başarısız: " + (err instanceof Error ? err.message : String(err)));
+        console.error("Deposit error:", err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        alert("Likidite ekleme başarısız: " + errorMsg);
         return;
       }
     } else {
       await handleTransaction({ type: 'deposit', inputAsset: 'ETH', inputAmount: ethAmount, outputAsset: TOKEN_SYMBOL, outputAmount: tokenAmount });
     }
-  }, [handleTransaction, userEthBalance, userTokenBalance, ethReserve, tokenReserve, isLiveMode, signer, provider, refreshOnChainBalances]);
+  }, [handleTransaction, userEthBalance, userTokenBalance, ethReserve, tokenReserve, isLiveMode, signer, provider, userAddress, refreshOnChainBalances]);
 
   const withdraw = useCallback(async (lpAmount: number) => {
     if (lpAmount > userLiquidity) { alert("Insufficient liquidity tokens."); return; }
@@ -258,12 +302,23 @@ export const useDEX = (): UseDEXReturnType => {
     if (isLiveMode && signer && provider) {
       try {
         const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
-        // Withdraw fonksiyonuna 18 desimal ile gönder
-        const withdrawTx = await dexContract.withdraw(ethers.utils.parseEther(lpAmount.toString()));
-        await withdrawTx.wait();
+        
+        // Withdraw with explicit gas limit
+        console.log("🔄 Withdrawing liquidity...");
+        const withdrawTx = await dexContract.withdraw(
+          ethers.utils.parseEther(lpAmount.toString()),
+          { gasLimit: 500000 }
+        );
+        const withdrawReceipt = await withdrawTx.wait();
+        console.log("✅ Withdrawal completed TX:", withdrawReceipt?.transactionHash);
+        
+        // Refresh balances with delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await refreshOnChainBalances();
       } catch (err) {
-        alert("Withdraw işlemi başarısız: " + (err instanceof Error ? err.message : String(err)));
+        console.error("Withdraw error:", err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        alert("Withdraw işlemi başarısız: " + errorMsg);
         return;
       }
     } else {
