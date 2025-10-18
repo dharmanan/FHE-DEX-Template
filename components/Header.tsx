@@ -86,22 +86,28 @@ const WalletSection: React.FC<{
 
             {/* Dropdown Menu */}
             <div className="relative group">
-                <button className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-semibold text-neutral-200 transition-colors">
+                <button 
+                    className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-semibold text-neutral-200 transition-colors"
+                    title="Wallet options menu"
+                >
                     ⋮
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-neutral-800 rounded-lg shadow-lg border border-neutral-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="absolute right-0 mt-2 w-52 bg-neutral-800 rounded-lg shadow-lg border border-neutral-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <button
                         onClick={onConnectWallet}
-                        className="block w-full text-left px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-yellow-400 rounded-t-lg transition-colors"
+                        className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-yellow-400 rounded-t-lg transition-colors border-b border-neutral-700 flex items-center space-x-2"
+                        title="Switch to a different wallet account"
                     >
-                        🔄 Connect Different Wallet
+                        <span>🔄</span>
+                        <span>Switch Account</span>
                     </button>
-                    <div className="border-t border-neutral-700"></div>
                     <button
                         onClick={onDisconnectWallet}
-                        className="block w-full text-left px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-red-400 rounded-b-lg transition-colors"
+                        className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-red-400 rounded-b-lg transition-colors flex items-center space-x-2"
+                        title="Disconnect wallet"
                     >
-                        🔌 Disconnect
+                        <span>🔌</span>
+                        <span>Disconnect</span>
                     </button>
                 </div>
             </div>
