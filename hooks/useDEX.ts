@@ -153,12 +153,14 @@ export const useDEX = (): UseDEXReturnType => {
       const tokenBal = await tokenContract.balanceOf(userAddress);
       setUserTokenBalance(Number(ethers.utils.formatUnits(tokenBal, 18)));
 
-  const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, provider);
-  const reserves = await dexContract.getReserves();
-  setEthReserve(Number(ethers.utils.formatEther(reserves[0])));
-  setTokenReserve(Number(ethers.utils.formatUnits(reserves[1], 18)));
-  const userLiquidityOnChain = await dexContract.liquidity(userAddress);
-  setUserLiquidity(Number(ethers.utils.formatEther(userLiquidityOnChain)));
+      const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, provider);
+      const reserves = await dexContract.getReserves();
+      setEthReserve(Number(ethers.utils.formatEther(reserves[0])));
+      setTokenReserve(Number(ethers.utils.formatUnits(reserves[1], 18)));
+      const userLiquidityOnChain = await dexContract.liquidity(userAddress);
+      setUserLiquidity(Number(ethers.utils.formatEther(userLiquidityOnChain)));
+      
+      console.log("✅ Balances refreshed from chain");
     } catch (err) {
       console.error("Zincirden bakiyeler okunamadı:", err);
     }

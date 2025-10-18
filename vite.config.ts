@@ -1,4 +1,5 @@
 
+
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -30,6 +31,17 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: ['buffer'],
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            ethers: ['ethers'],
+          }
+        }
+      },
+      chunkSizeWarningLimit: 1000,
     },
   };
 });
