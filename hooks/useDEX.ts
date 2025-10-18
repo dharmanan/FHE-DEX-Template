@@ -209,7 +209,7 @@ export const useDEX = (): UseDEXReturnType => {
         // Gerçek kontrata işlem gönder
         try {
           const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
-          const tx = await dexContract.ethToTokenSwap({ value: ethers.utils.parseEther(inputAmount.toString()) });
+          const tx = await dexContract.swapEth({ value: ethers.utils.parseEther(inputAmount.toString()) });
           await tx.wait();
           // Zincirden bakiyeleri güncelle
           await refreshOnChainBalances();
@@ -229,7 +229,7 @@ export const useDEX = (): UseDEXReturnType => {
       outputAmount = ethReserve - newEthReserve;
 
       if (isLiveMode && signer && provider) {
-        // Token ile swap için önce approve, sonra tokenToEthSwap fonksiyonu çağrılmalı
+        // Token ile swap için önce approve, sonra swapToken fonksiyonu çağrılmalı
         try {
           const tokenContract = new ethers.Contract(ZAMA_TOKEN_ADDRESS, ZAMA_TOKEN_ABI_OBJ, signer);
           const dexContract = new ethers.Contract(DEX_CONTRACT_ADDRESS, DEX_ABI_OBJ, signer);
@@ -248,7 +248,7 @@ export const useDEX = (): UseDEXReturnType => {
           
           // Swap işlemi with gas limit
           console.log("🔄 Executing token-to-ETH swap...");
-          const swapTx = await dexContract.tokenToEthSwap(
+          const swapTx = await dexContract.swapToken(
             requiredAmount,
             { gasLimit: 500000 }
           );
