@@ -14,6 +14,18 @@
 | **Deployment Guide** | [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | ✅ Complete |
 | **Smart Contract Tests** | [npm test](./test/) | ✅ 11/11 passing |
 
+### Live Contract Addresses (Sepolia Testnet)
+
+| Contract | Address | Etherscan |
+|----------|---------|-----------|
+| **ZamaToken (ERC20)** | `0xb2B26a1222D5c02a081cBDC06277D71BD50927e6` | [View on Etherscan](https://sepolia.etherscan.io/address/0xb2B26a1222D5c02a081cBDC06277D71BD50927e6) |
+| **DEX (AMM)** | `0x50B85A4A3c76be5B36c1CfA04B1AFc44dd1EBE7c` | [View on Etherscan](https://sepolia.etherscan.io/address/0x50B85A4A3c76be5B36c1CfA04B1AFc44dd1EBE7c) |
+| **Deployer** | `0x20cDAd07152eF163CAd9Be2cDe1766298B883d71` | [View on Etherscan](https://sepolia.etherscan.io/address/0x20cDAd07152eF163CAd9Be2cDe1766298B883d71) |
+
+**Deployment Date**: October 18, 2025
+
+> **For Verification**: See [VERIFICATION_AND_DEPLOYMENT.md](./VERIFICATION_AND_DEPLOYMENT.md) for Etherscan verification steps and contract interaction guides.
+
 > **For Zama Builder Track Reviewers**: See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete setup and testing instructions. See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed technical design and FHEVM integration.
 
 ---
