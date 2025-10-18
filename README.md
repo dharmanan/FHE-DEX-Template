@@ -22,14 +22,22 @@
 | Contract | Type | Address | Status |
 |----------|------|---------|--------|
 | **DEX.sol** | Standard AMM | `0x1F1B2d3BDCe3674164eD34F1313a62486764CD19` | ✅ Deployed |
-| **FHEDEX.sol** | 🔐 FHE-Enabled | Ready for deployment | 🟡 New |
+| **FHEDEX.sol** | 🔐 FHE-Enabled | `0x881Aa3BE4A1cb54e48533262DDBE36Af272785a5` | ✅ Deployed on Sepolia |
 | **ZamaToken (ERC20)** | Token | `0x8CE14A95E9e9622F81b4C71eb99f1C2228bFD636` | ✅ Deployed |
 
-**Pool State** (Updated October 18, 2025):
-- ETH Reserve: 0.2 ETH
-- Token Reserve: 1007 ZAMA
-- Exchange Rate: 1 ETH ≈ 5035 ZAMA
-- Total LP Tokens: 0.2
+### FHEDEX Deployment Info (October 18, 2025)
+- **Contract**: FHEDEX (Fully Homomorphic Encryption DEX)
+- **Address**: `0x881Aa3BE4A1cb54e48533262DDBE36Af272785a5`
+- **TX Hash**: `0x61b22cca68de826e12e1de4deaa79717ad29ede6f03e65f40ac69bcbcac28c9a`
+- **Network**: Sepolia Testnet (Chain ID: 11155111)
+- **Features**: 
+  - Encrypted reserve storage (euint256)
+  - Confidential liquidity positions
+  - Homomorphic swap calculations
+  - Private transaction amounts
+
+**Current Frontend**: Using FHEDEX contract address
+**Pool State**: Not yet initialized (run `npm run init:dex` after Vercel deployment updates)
 
 > **For Verification**: See [VERIFICATION_AND_DEPLOYMENT.md](./VERIFICATION_AND_DEPLOYMENT.md) for Etherscan verification steps and contract interaction guides.
 
@@ -74,24 +82,30 @@ The universal FHEVM SDK in this repository currently runs in **dummy/mock mode**
 
 ### Smart Contract (Solidity)
 - ✅ **Automated Market Maker (AMM)**: Implements constant product formula (x * y = k)
-- ✅ **Privacy-Preserving Swaps**: ETH ↔ ZAMA Token swaps
+- ✅ **FHE-Enabled Operations**: FHEDEX contract with homomorphic arithmetic
+- ✅ **Encrypted State**: euint256 encrypted reserves and user liquidity positions
+- ✅ **Privacy-Preserving Swaps**: ETH ↔ ZAMA Token swaps with confidential calculations
 - ✅ **Liquidity Management**: Add/remove liquidity with LP token support
+- ✅ **Homomorphic Operations**: FHE.add(), FHE.mul(), FHE.div() for private computation
 - ✅ **Event Logging**: Full transparency with contract events
 - ✅ **Security**: Input validation, reentrancy protection, overflow prevention
 
 ### Frontend (React + TypeScript)
 - ✅ **Multi-Framework Showcase**: Next.js, Vue, Node.js, Svelte examples
 - ✅ **Universal FHEVM SDK**: Framework-agnostic encryption integration
-- ✅ **MetaMask Integration**: Wallet connection and transaction signing
+- ✅ **MetaMask Integration**: Wallet connection, account switching, and network detection
 - ✅ **Real-time Balances**: Live ETH, token, and LP balance tracking
 - ✅ **AMM Visualization**: Constant product curve display
+- ✅ **FHE Service Layer**: Clean abstraction for encrypted transactions
 - ✅ **Error Handling**: Comprehensive error feedback and recovery
 
 ### Testing & Deployment
 - ✅ **11 Unit Tests**: Comprehensive test coverage (100% passing)
+- ✅ **FHEDEX Deployment**: FHE-enabled DEX deployed to Sepolia
 - ✅ **Hardhat Framework**: Full contract testing and deployment scripts
 - ✅ **Sepolia Testnet**: Fully functional testnet deployment
 - ✅ **Environment Configuration**: Secure private key management
+- ✅ **Vercel Production**: Live frontend with automatic deployment
 
 ---
 
