@@ -33,6 +33,13 @@ export default defineConfig(({ mode }) => {
       include: ['buffer'],
     },
     build: {
+      minify: 'terser',
+      target: 'es2020',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+        },
+      },
       rollupOptions: {
         output: {
           manualChunks: {

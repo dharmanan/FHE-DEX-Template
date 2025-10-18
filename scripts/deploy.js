@@ -2,33 +2,34 @@ const hre = require("hardhat");
 const fs = require("fs");
 
 async function main() {
-  console.log("Starting contract deployment...\n");
+  console.log("Starting Zama FHEVM DEX deployment...\n");
   
   const [deployer] = await hre.ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
+  console.log("Deploying with account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // ZamaToken'ı deploy et
   console.log("\n1. Deploying ZamaToken...");
-  const zamaTokenFactory = await hre.ethers.getContractFactory("ZamaToken");
-  const zamaToken = await zamaTokenFactory.deploy(deployer.address);
+  const ZamaToken = await hre.ethers.getContractFactory("ZamaToken");
+  const zamaToken = await ZamaToken.deploy();
   await zamaToken.deployed();
   const tokenAddress = zamaToken.address;
   console.log(`✓ ZamaToken deployed to: ${tokenAddress}`);
 
-  // DEX'i deploy et
-  console.log("\n2. Deploying DEX...");
-  const dexFactory = await hre.ethers.getContractFactory("DEX");
-  const dex = await dexFactory.deploy(tokenAddress);
-  await dex.deployed();
-  const dexAddress = dex.address;
-  console.log(`✓ DEX deployed to: ${dexAddress}`);
+  // FHEDEX'i deploy et
+  console.log("\n2. Deploying FHEDEX...");
+  const FHEDEX = await hre.ethers.getContractFactory("FHEDEX");
+  const fhedex = await FHEDEX.deploy(tokenAddress);
+  await fhedex.deployed();
+  const fhedexAddress = fhedex.address;
+  console.log(`✓ FHEDEX deployed to: ${fhedexAddress}`);
 
   // Deployment info'yu kaydet
   const deploymentInfo = {
     network: hre.network.name,
+    chainId: (await hre.ethers.provider.getNetwork()).chainId,
     zamaToken: tokenAddress,
-    dex: dexAddress,
+    fhedex: fhedexAddress,
     deployer: deployer.address,
     timestamp: new Date().toISOString()
   };
@@ -42,9 +43,11 @@ async function main() {
 
   console.log("\n=== Deployment Summary ===");
   console.log(`Network: ${deploymentInfo.network}`);
+  console.log(`Chain ID: ${deploymentInfo.chainId}`);
   console.log(`ZamaToken: ${tokenAddress}`);
-  console.log(`DEX: ${dexAddress}`);
+  console.log(`FHEDEX: ${fhedexAddress}`);
   console.log(`Deployer: ${deployer.address}`);
+  console.log(`Timestamp: ${deploymentInfo.timestamp}`);
 }
 
 main().catch((error) => {

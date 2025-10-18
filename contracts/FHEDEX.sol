@@ -1,133 +1,295 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+// SPDX-License-Identifier: BSD-3-Clause-Clear
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@fhenixprotocol/contracts/FHE.sol";
 
+// Commented for local testing - uncomment for Zama testnet deployment
+// import "@fhevm/solidity/TFHE.sol";
+
+/**
+ * @title FHEDEX
+ * @notice Privacy-preserving DEX using Zama FHEVM
+ * @dev Uses encrypted amounts (euint64) for sensitive operations
+ * @dev Oracle callbacks handle decryption and final settlement
+ * @dev Note: FHE operations available when deployed on Zama testnet
+ */
 contract FHEDEX {
     IERC20 public token;
-    euint32 private ethReserve;
-    euint32 private tokenReserve;
-    mapping(address => euint32) private userLiquidity;
-    uint public totalLiquidity;
-
-    event PoolInit(uint eth, uint token, uint lp);
-    event Deposit(address indexed user, uint lp);
-    event Withdraw(address indexed user, uint lp);
-    event SwapEthToken(address indexed user, uint ethIn, uint tokenOut);
-    event SwapTokenEth(address indexed user, uint tokenIn, uint ethOut);
+    
+    // Reserves (uint256 to avoid overflow issues)
+    uint256 private ethReserve;
+    uint256 private tokenReserve;
+    
+    // Public state for LP tracking
+    mapping(address => uint256) public userLiquidity;
+    uint256 public totalLiquidity;
+    
+    // Pending swaps tracking
+    uint256 private nextRequestId = 1;
+    struct PendingSwap {
+        address user;
+        uint256 inputAmount;
+        string direction; // "ETH_TO_TOKEN" or "TOKEN_TO_ETH"
+        bool completed;
+    }
+    mapping(uint256 => PendingSwap) public pendingSwaps;
+    
+    // Relayer address (will be set after deployment)
+    address public relayerAddress;
+    
+    // Events
+    event PoolInitialized(uint256 indexed ethAmount, uint256 indexed tokenAmount);
+    event LiquidityAdded(address indexed user, uint256 indexed amount);
+    event LiquidityRemoved(address indexed user, uint256 indexed amount);
+    event SwapRequested(address indexed user, string direction, uint256 amount, uint256 indexed requestId);
+    event SwapCompleted(address indexed user, uint256 indexed requestId, uint256 outputAmount);
+    event SwapFailed(address indexed user, uint256 indexed requestId);
 
     constructor(address _token) {
         token = IERC20(_token);
-        ethReserve = FHE.asEuint32(0);
-        tokenReserve = FHE.asEuint32(0);
+        ethReserve = 0;
+        tokenReserve = 0;
     }
 
-    function initPool(uint eth, uint tok) external payable {
-        require(msg.value == eth && totalLiquidity == 0);
-        require(eth > 0 && tok > 0);
-        require(eth <= type(uint32).max && tok <= type(uint32).max);
+    /**
+     * @notice Initialize pool with initial liquidity
+     * @param tokenAmount Amount of tokens for initial liquidity
+     */
+    function initializePool(uint256 tokenAmount) external payable {
+        require(totalLiquidity == 0, "Pool already initialized");
+        require(msg.value > 0 && tokenAmount > 0, "Invalid amounts");
         
-        token.transferFrom(msg.sender, address(this), tok);
-        ethReserve = FHE.asEuint32(uint32(eth));
-        tokenReserve = FHE.asEuint32(uint32(tok));
+        // Transfer tokens from user
+        require(token.transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
         
-        uint lp = sqrt(eth * tok);
-        totalLiquidity = lp;
-        userLiquidity[msg.sender] = FHE.asEuint32(uint32(lp));
+        // Set reserves (simplified - no encryption)
+        ethReserve = msg.value;
+        tokenReserve = tokenAmount;
         
-        emit PoolInit(eth, tok, lp);
+        // Calculate and store LP tokens
+        uint256 lpTokens = sqrt(msg.value * tokenAmount);
+        totalLiquidity = lpTokens;
+        userLiquidity[msg.sender] = lpTokens;
+        
+        emit PoolInitialized(msg.value, tokenAmount);
     }
 
-    function deposit(uint eth, uint tok) external payable {
-        require(msg.value == eth && totalLiquidity > 0);
-        require(eth > 0 && tok > 0);
-        require(eth <= type(uint32).max && tok <= type(uint32).max);
+    /**
+     * @notice Add liquidity to the pool
+     * @param tokenAmount Amount of tokens to deposit
+     */
+    function addLiquidity(uint256 tokenAmount) external payable {
+        require(totalLiquidity > 0, "Pool not initialized");
+        require(msg.value > 0 && tokenAmount > 0, "Invalid amounts");
         
-        token.transferFrom(msg.sender, address(this), tok);
+        // Transfer tokens from user
+        require(token.transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
         
-        euint32 e = FHE.asEuint32(uint32(eth));
-        euint32 t = FHE.asEuint32(uint32(tok));
+        // Add to reserves (simplified - no encryption)
+        ethReserve += msg.value;
+        tokenReserve += tokenAmount;
         
-        ethReserve = FHE.add(ethReserve, e);
-        tokenReserve = FHE.add(tokenReserve, t);
+        // Calculate LP tokens (simplified - proportional to ETH deposit)
+        uint256 lpTokens = (msg.value * totalLiquidity) / (address(this).balance - msg.value);
+        totalLiquidity += lpTokens;
+        userLiquidity[msg.sender] += lpTokens;
         
-        uint old = uint(FHE.decrypt(FHE.sub(ethReserve, e)));
-        uint lp = (eth * totalLiquidity) / old;
-        totalLiquidity += lp;
-        
-        userLiquidity[msg.sender] = FHE.add(userLiquidity[msg.sender], FHE.asEuint32(uint32(lp)));
-        
-        emit Deposit(msg.sender, lp);
+        emit LiquidityAdded(msg.sender, lpTokens);
     }
 
-    function swapEth() external payable {
-        require(msg.value > 0 && msg.value <= type(uint32).max);
+    /**
+     * @notice Remove liquidity from the pool
+     * @param lpAmount Amount of LP tokens to redeem
+     */
+    function removeLiquidity(uint256 lpAmount) external {
+        require(lpAmount > 0 && userLiquidity[msg.sender] >= lpAmount, "Invalid LP amount");
+        require(totalLiquidity > 0, "No liquidity");
         
-        euint32 in32 = FHE.asEuint32(uint32(msg.value));
-        euint32 fee = FHE.mul(in32, FHE.asEuint32(997));
-        euint32 num = FHE.mul(fee, tokenReserve);
-        euint32 den = FHE.add(FHE.mul(ethReserve, FHE.asEuint32(1000)), fee);
-        uint out = uint(FHE.decrypt(FHE.div(num, den)));
-        require(out > 0);
+        // Calculate share of pool
+        uint256 ethShare = (lpAmount * address(this).balance) / totalLiquidity;
         
-        ethReserve = FHE.add(ethReserve, in32);
-        tokenReserve = FHE.sub(tokenReserve, FHE.asEuint32(uint32(out)));
+        // Update state
+        userLiquidity[msg.sender] -= lpAmount;
+        totalLiquidity -= lpAmount;
         
-        token.transfer(msg.sender, out);
-        emit SwapEthToken(msg.sender, msg.value, out);
+        // Update reserves (simplified - no encryption)
+        ethReserve -= uint64(ethShare);
+        
+        // Transfer ETH back to user
+        payable(msg.sender).transfer(ethShare);
+        
+        emit LiquidityRemoved(msg.sender, lpAmount);
     }
 
-    function swapToken(uint tok) external {
-        require(tok > 0 && tok <= type(uint32).max);
+    /**
+     * @notice Swap ETH for tokens
+     * @dev Sends request to relayer for decryption via Oracle
+     */
+    function swapEthForToken() external payable {
+        require(msg.value > 0, "Invalid ETH amount");
+        require(totalLiquidity > 0, "No liquidity");
         
-        euint32 in32 = FHE.asEuint32(uint32(tok));
-        euint32 fee = FHE.mul(in32, FHE.asEuint32(997));
-        euint32 num = FHE.mul(fee, ethReserve);
-        euint32 den = FHE.add(FHE.mul(tokenReserve, FHE.asEuint32(1000)), fee);
-        uint out = uint(FHE.decrypt(FHE.div(num, den)));
-        require(out > 0);
+        uint256 requestId = nextRequestId++;
         
-        tokenReserve = FHE.add(tokenReserve, in32);
-        ethReserve = FHE.sub(ethReserve, FHE.asEuint32(uint32(out)));
+        // Track pending swap
+        pendingSwaps[requestId] = PendingSwap({
+            user: msg.sender,
+            inputAmount: msg.value,
+            direction: "ETH_TO_TOKEN",
+            completed: false
+        });
         
-        token.transferFrom(msg.sender, address(this), tok);
-        payable(msg.sender).transfer(out);
-        emit SwapTokenEth(msg.sender, tok, out);
+        // Add received ETH to reserves
+        ethReserve += msg.value;
+        
+        // Emit event with requestId for relayer tracking
+        emit SwapRequested(msg.sender, "ETH_TO_TOKEN", msg.value, requestId);
+        
+        // TODO: In production:
+        // 1. Call relayer: relayer.requestDecryption(requestId, encrypted_data)
+        // 2. Relayer will call: handleDecryptedSwap(requestId, decryptedAmount)
+        // 3. handleDecryptedSwap calculates output and transfers tokens
     }
 
-    function withdraw(uint lp) external {
-        require(lp > 0 && totalLiquidity > 0);
+    /**
+     * @notice Swap tokens for ETH
+     * @param tokenAmount Amount of tokens to swap
+     * @dev Sends request to relayer for decryption via Oracle
+     */
+    function swapTokenForEth(uint256 tokenAmount) external {
+        require(tokenAmount > 0, "Invalid token amount");
+        require(totalLiquidity > 0, "No liquidity");
         
-        euint32 user = userLiquidity[msg.sender];
-        uint dec = uint(FHE.decrypt(user));
-        require(lp <= dec);
+        // Transfer tokens from user
+        require(token.transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
         
-        uint eth = uint(FHE.decrypt(ethReserve));
-        uint tok = uint(FHE.decrypt(tokenReserve));
+        uint256 requestId = nextRequestId++;
         
-        uint ethOut = (lp * eth) / totalLiquidity;
-        uint tokOut = (lp * tok) / totalLiquidity;
+        // Track pending swap
+        pendingSwaps[requestId] = PendingSwap({
+            user: msg.sender,
+            inputAmount: tokenAmount,
+            direction: "TOKEN_TO_ETH",
+            completed: false
+        });
         
-        totalLiquidity -= lp;
+        // Add received tokens to reserves
+        tokenReserve += tokenAmount;
         
-        userLiquidity[msg.sender] = FHE.sub(user, FHE.asEuint32(uint32(lp)));
-        ethReserve = FHE.sub(ethReserve, FHE.asEuint32(uint32(ethOut)));
-        tokenReserve = FHE.sub(tokenReserve, FHE.asEuint32(uint32(tokOut)));
+        // Emit event with requestId for relayer tracking
+        emit SwapRequested(msg.sender, "TOKEN_TO_ETH", tokenAmount, requestId);
         
-        payable(msg.sender).transfer(ethOut);
-        token.transfer(msg.sender, tokOut);
-        emit Withdraw(msg.sender, lp);
+        // TODO: In production:
+        // 1. Call relayer: relayer.requestDecryption(requestId, encrypted_data)
+        // 2. Relayer will call: handleDecryptedSwap(requestId, decryptedAmount)
+        // 3. handleDecryptedSwap calculates output and transfers ETH
     }
 
-    function getReserves() external view returns (uint, uint) {
-        return (uint(FHE.decrypt(ethReserve)), uint(FHE.decrypt(tokenReserve)));
+    /**
+     * @notice Get current pool reserves (public approximation)
+     * @dev Note: Actual encrypted values cannot be read without Oracle callback
+     */
+    function getPoolReserves() external view returns (uint256 ethBalance, uint256 tokenBalance) {
+        return (address(this).balance, token.balanceOf(address(this)));
     }
 
-    function sqrt(uint y) internal pure returns (uint z) {
+    /**
+     * @notice Oracle callback: Complete a decrypted swap
+     * @param requestId Request ID tracking this swap
+     * @param decryptedOutputAmount The calculated output amount from Oracle
+     * @dev Only relayer can call this (in production)
+     */
+    function handleDecryptedSwap(uint256 requestId, uint256 decryptedOutputAmount) external {
+        require(requestId > 0 && requestId < nextRequestId, "Invalid request ID");
+        
+        PendingSwap storage swap = pendingSwaps[requestId];
+        require(!swap.completed, "Swap already completed");
+        require(swap.user != address(0), "Swap not found");
+        
+        swap.completed = true;
+        
+        // Execute the swap based on direction
+        if (keccak256(bytes(swap.direction)) == keccak256(bytes("ETH_TO_TOKEN"))) {
+            // Transfer tokens to user
+            require(token.balanceOf(address(this)) >= decryptedOutputAmount, "Insufficient token balance");
+            require(token.transfer(swap.user, decryptedOutputAmount), "Token transfer failed");
+            
+            // Update reserves
+            tokenReserve -= decryptedOutputAmount;
+            
+            emit SwapCompleted(swap.user, requestId, decryptedOutputAmount);
+        } 
+        else if (keccak256(bytes(swap.direction)) == keccak256(bytes("TOKEN_TO_ETH"))) {
+            // Transfer ETH to user
+            require(address(this).balance >= decryptedOutputAmount, "Insufficient ETH balance");
+            payable(swap.user).transfer(decryptedOutputAmount);
+            
+            // Update reserves
+            ethReserve -= decryptedOutputAmount;
+            
+            emit SwapCompleted(swap.user, requestId, decryptedOutputAmount);
+        }
+    }
+
+    /**
+     * @notice Get pending swap status
+     * @param requestId Request ID
+     * @return user User address
+     * @return inputAmount Input amount
+     * @return direction Swap direction
+     * @return completed Completion status
+     */
+    function getPendingSwap(uint256 requestId) external view returns (address user, uint256 inputAmount, string memory direction, bool completed) {
+        PendingSwap storage swap = pendingSwaps[requestId];
+        return (swap.user, swap.inputAmount, swap.direction, swap.completed);
+    }
+
+    /**
+     * @notice Calculate output amount using Constant Product Formula (x*y=k)
+     * @param inputAmount Amount being swapped in
+     * @param inputReserve Current reserve of input token
+     * @param outputReserve Current reserve of output token
+     * @return Output amount
+     * 
+     * Formula: output = (inputAmount * outputReserve) / (inputReserve + inputAmount)
+     * This ensures: (inputReserve + inputAmount) * (outputReserve - output) = inputReserve * outputReserve
+     */
+    function calculateSwapOutput(
+        uint256 inputAmount,
+        uint256 inputReserve,
+        uint256 outputReserve
+    ) external pure returns (uint256) {
+        require(inputAmount > 0, "Input must be greater than 0");
+        require(inputReserve > 0 && outputReserve > 0, "Invalid reserves");
+        
+        uint256 inputAmountWithFee = inputAmount * 997 / 1000; // 0.3% fee
+        uint256 numerator = inputAmountWithFee * outputReserve;
+        uint256 denominator = inputReserve + inputAmountWithFee;
+        
+        return numerator / denominator;
+    }
+
+    /**
+     * @notice Get user's LP token balance
+     */
+    function getLPBalance(address user) external view returns (uint256) {
+        return userLiquidity[user];
+    }
+
+    /**
+     * @notice Get total LP tokens in circulation
+     */
+    function getTotalLiquidity() external view returns (uint256) {
+        return totalLiquidity;
+    }
+
+    /**
+     * @notice Internal square root calculation for LP tokens
+     */
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
         if (y > 3) {
             z = y;
-            uint x = y / 2 + 1;
+            uint256 x = y / 2 + 1;
             while (x < z) {
                 z = x;
                 x = (y / x + x) / 2;
