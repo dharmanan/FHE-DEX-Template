@@ -53,7 +53,19 @@ interface UseDexReturn extends DexState, DexActions {
 /**
  * Hook for interacting with FHEDEX contract
  */
-export function useDEX(config: DexConfig): UseDexReturn {
+export function useDEX(config?: Partial<DexConfig>): UseDexReturn {
+  // Import defaults from constants
+  const { DEX_CONTRACT_ADDRESS, ZAMA_TOKEN_ADDRESS, DEX_ABI_OBJ, ZAMA_TOKEN_ABI_OBJ, NETWORK_ID } = require('../constants');
+  
+  // Merge with defaults
+  const finalConfig: DexConfig = {
+    contractAddress: config?.contractAddress || DEX_CONTRACT_ADDRESS,
+    tokenAddress: config?.tokenAddress || ZAMA_TOKEN_ADDRESS,
+    contractAbi: config?.contractAbi || DEX_ABI_OBJ,
+    tokenAbi: config?.tokenAbi || ZAMA_TOKEN_ABI_OBJ,
+    chainId: config?.chainId || NETWORK_ID,
+    relayerEndpoint: config?.relayerEndpoint,
+  };
   // Refs
   const signerRef = useRef<ethers.Signer | null>(null);
   const providerRef = useRef<ethers.providers.Provider | null>(null);
@@ -88,19 +100,19 @@ export function useDEX(config: DexConfig): UseDexReturn {
         providerRef.current = signer.provider!;
 
         // Initialize contracts
-        contractRef.current = new Contract(config.contractAddress, config.contractAbi, signer);
-        tokenContractRef.current = new Contract(config.tokenAddress, config.tokenAbi, signer);
+        contractRef.current = new Contract(finalConfig.contractAddress, finalConfig.contractAbi, signer);
+        tokenContractRef.current = new Contract(finalConfig.tokenAddress, finalConfig.tokenAbi, signer);
 
         // Initialize services
         relayerRef.current = new RelayerClient({
-          endpoint: config.relayerEndpoint || 'https://testnet-relayer.zama.ai',
-          chainId: config.chainId || 8008,
+          endpoint: finalConfig.relayerEndpoint || 'https://testnet-relayer.zama.ai',
+          chainId: finalConfig.chainId || 8008,
           enableLogging: true,
         });
 
         encryptionRef.current = new EncryptionService({
-          contractAddress: config.contractAddress,
-          contractAbi: config.contractAbi,
+          contractAddress: finalConfig.contractAddress,
+          contractAbi: finalConfig.contractAbi,
           enableLogging: true,
         });
 
@@ -225,7 +237,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         await relayerRef.current.requestOracleDecryption(
           requestId,
           encryptedAmount.value, // Pass the hex string, not the object
-          config.contractAddress
+          finalConfig.contractAddress
         );
 
         console.log('[useDEX] Oracle decryption requested', { requestId });
@@ -260,7 +272,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         setIsLoading(false);
       }
     },
-    [isInitialized, config.contractAddress, refreshBalances, refreshPoolState]
+    [isInitialized, finalConfig.contractAddress, refreshBalances, refreshPoolState]
   );
 
   /**
@@ -280,7 +292,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         console.log('[useDEX] Swapping token for ETH', { amount: tokenAmount, user: userAddress });
 
         // Step 1: Approve token transfer
-        await tokenContractRef.current!.approve(config.contractAddress, bnAmount);
+        await tokenContractRef.current!.approve(finalConfig.contractAddress, bnAmount);
         console.log('[useDEX] Token transfer approved');
 
         // Step 2: Submit swap through contract
@@ -313,7 +325,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         await relayerRef.current.requestOracleDecryption(
           requestId,
           encryptedAmount.value, // Pass the hex string, not the object
-          config.contractAddress
+          finalConfig.contractAddress
         );
 
         console.log('[useDEX] Oracle decryption requested', { requestId });
@@ -348,7 +360,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         setIsLoading(false);
       }
     },
-    [isInitialized, config.contractAddress, refreshBalances, refreshPoolState]
+    [isInitialized, finalConfig.contractAddress, refreshBalances, refreshPoolState]
   );
 
   /**
@@ -368,7 +380,7 @@ export function useDEX(config: DexConfig): UseDexReturn {
         console.log('[useDEX] Adding liquidity', { ethAmount, tokenAmount });
 
         // First, approve token transfer
-        await tokenContractRef.current!.approve(config.contractAddress, tokenBn);
+        await tokenContractRef.current!.approve(finalConfig.contractAddress, tokenBn);
 
         // Then call addLiquidity with ETH
         const tx = await contractRef.current.addLiquidity(tokenBn, { value: ethBn });
