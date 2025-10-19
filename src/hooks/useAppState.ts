@@ -98,6 +98,23 @@ export function useAppState(): UseDEXReturnType {
         setUserTokenBalance(0);
       }
 
+      // Get LP balance from DEX
+      try {
+        const dexContract = new Contract(
+          DEX_CONTRACT_ADDRESS,
+          DEX_ABI_OBJ,
+          provider
+        );
+        
+        const lpBal = await dexContract.getLPBalance(address);
+        const lpAmount = parseFloat(formatUnits(lpBal, 18));
+        setUserLiquidity(lpAmount);
+        console.log('[useAppState] LP balance loaded:', lpAmount, '(raw:', lpBal.toString(), ')');
+      } catch (lpError) {
+        console.warn('[useAppState] LP balance loading failed:', lpError);
+        setUserLiquidity(0);
+      }
+
       console.log('[useAppState] User balances loaded successfully');
     } catch (error) {
       console.error('[useAppState] Failed to load user balances:', error);
@@ -362,6 +379,14 @@ export function useAppState(): UseDEXReturnType {
   useEffect(() => {
     if (userAddress) {
       loadUserBalances(userAddress);
+      
+      // Poll user balances every 3 seconds for real-time updates
+      const userPollInterval = setInterval(() => {
+        console.log('[useAppState] Polling user balances...');
+        loadUserBalances(userAddress);
+      }, 3000);
+
+      return () => clearInterval(userPollInterval);
     }
   }, [userAddress, loadUserBalances]);
 
@@ -391,9 +416,15 @@ export function useAppState(): UseDEXReturnType {
     (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
     (window as any).ethereum.on('chainChanged', handleChainChanged);
 
+    // Poll pool reserves every 5 seconds for real-time updates
+    const poolPollInterval = setInterval(() => {
+      loadPoolReserves();
+    }, 5000);
+
     return () => {
       (window as any).ethereum.removeListener('accountsChanged', handleAccountsChanged);
       (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
+      clearInterval(poolPollInterval);
     };
   }, [loadPoolReserves, loadUserBalances, disconnectWallet]);
 

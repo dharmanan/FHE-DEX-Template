@@ -1,11 +1,11 @@
 export const TOKEN_NAME = "Zama";
 export const TOKEN_SYMBOL = "ZAMA";
 
-// Sepolia Testnet Deployed Contracts (October 19, 2025 - Final)
-// FHE-Enabled FHEDEX Contract with Immediate Swap + Fixed LP Calculation
-// Pool: 1 ETH + 10000 ZAMA (recovered from old contracts)
-export const DEX_CONTRACT_ADDRESS = import.meta.env.VITE_DEX_ADDRESS || "0xc7a8884fa733510A3A1C7021e38Dd053dDb75e41";
-export const ZAMA_TOKEN_ADDRESS = import.meta.env.VITE_ZAMA_TOKEN_ADDRESS || "0x2080Db70a9490Eb7E3d7C5ebD58C36F58CE908A1";
+// Sepolia Testnet Deployed Contracts (October 19, 2025 - FIXED TOKEN WITHDRAW)
+// FHE-Enabled FHEDEX Contract with Immediate Swap + FIXED removeLiquidity returns both ETH and TOKEN
+// Pool: 0.05 ETH + 500 ZAMA (fixed zamaToken → token variable names)
+export const DEX_CONTRACT_ADDRESS = import.meta.env.VITE_DEX_ADDRESS || "0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be";
+export const ZAMA_TOKEN_ADDRESS = import.meta.env.VITE_ZAMA_TOKEN_ADDRESS || "0x3630d67C78A3da51549e8608C17883Ea481D817F";
 
 import DEX_ABI from "./src/abi/DEX.json";
 import ZAMA_TOKEN_ABI from "./src/abi/ZamaToken.json";

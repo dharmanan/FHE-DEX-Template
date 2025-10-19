@@ -110,6 +110,7 @@ contract FHEDEX {
         
         // Calculate share of pool
         uint256 ethShare = (lpAmount * address(this).balance) / totalLiquidity;
+        uint256 tokenShare = (lpAmount * token.balanceOf(address(this))) / totalLiquidity;
         
         // Update state
         userLiquidity[msg.sender] -= lpAmount;
@@ -118,8 +119,9 @@ contract FHEDEX {
         // Update reserves (simplified - no encryption)
         ethReserve -= uint64(ethShare);
         
-        // Transfer ETH back to user
+        // Transfer ETH and TOKEN back to user
         payable(msg.sender).transfer(ethShare);
+        require(token.transfer(msg.sender, tokenShare), "Token transfer failed");
         
         emit LiquidityRemoved(msg.sender, lpAmount);
     }

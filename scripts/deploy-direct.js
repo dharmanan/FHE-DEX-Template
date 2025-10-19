@@ -51,9 +51,9 @@ async function main() {
   console.log("   ✓ Token approval confirmed");
   
   // Initialize pool with proper amounts
-  console.log("   - Initializing with 1 ETH + 10000 ZAMA...");
-  const initTx = await fhedex.initializePool(ethers.parseUnits("10000", 18), {
-    value: ethers.parseEther("1")
+  console.log("   - Initializing with 0.05 ETH + 500 ZAMA...");
+  const initTx = await fhedex.initializePool(ethers.parseUnits("500", 18), {
+    value: ethers.parseEther("0.05")
   });
   await initTx.wait();
   console.log("   ✓ Pool initialized\n");
