@@ -10,6 +10,12 @@
   <body class="bg-neutral-950">
     <div id="root"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers.js/6.7.1/ethers.umd.min.js"></script>
+    <script>
+      // Wait for ethers to load
+      if (typeof window.ethers === 'undefined') {
+        console.log('ethers.js loading...');
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
