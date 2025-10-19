@@ -2,5 +2,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install --force",
-  "framework": "vite"
+  "framework": "vite",
+  "env": {
+    "VITE_DEX_ADDRESS": "0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be",
+    "VITE_ZAMA_TOKEN_ADDRESS": "0x3630d67C78A3da51549e8608C17883Ea481D817F",
+    "VITE_NETWORK_ID": "11155111",
+    "VITE_NETWORK_NAME": "sepolia",
+    "VITE_RPC_URL": "https://eth-sepolia.public.blastapi.io"
+  }
 }
