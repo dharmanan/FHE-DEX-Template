@@ -41,19 +41,19 @@ async function main() {
   const fhedexAddress = await fhedex.getAddress();
   console.log(`✓ FHEDEX deployed to: ${fhedexAddress}\n`);
   
-  // 3. Initialize pool with 0.5 ETH + 5000 ZAMA
+  // 3. Initialize pool with 1 ETH + 10000 ZAMA (recovered liquidity)
   console.log("3. Initializing pool...");
   
   // First approve token transfer
   console.log("   - Approving token transfer...");
-  const approveTx = await zamaToken.approve(fhedexAddress, ethers.parseUnits("5000", 18));
+  const approveTx = await zamaToken.approve(fhedexAddress, ethers.parseUnits("10000", 18));
   await approveTx.wait();
   console.log("   ✓ Token approval confirmed");
   
   // Initialize pool with proper amounts
-  console.log("   - Initializing with 0.5 ETH + 5000 ZAMA...");
-  const initTx = await fhedex.initializePool(ethers.parseUnits("5000", 18), {
-    value: ethers.parseEther("0.5")
+  console.log("   - Initializing with 1 ETH + 10000 ZAMA...");
+  const initTx = await fhedex.initializePool(ethers.parseUnits("10000", 18), {
+    value: ethers.parseEther("1")
   });
   await initTx.wait();
   console.log("   ✓ Pool initialized\n");
