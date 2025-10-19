@@ -276,14 +276,19 @@ export function useAppState(): UseDEXReturnType {
       const tokenBn = parseUnits(tokenAmount.toString(), 18);
 
       // Approve token transfer
+      console.log('[useAppState] Approving token for DEX...');
       const tokenContract = new Contract(
         ZAMA_TOKEN_ADDRESS,
         ZAMA_TOKEN_ABI_OBJ,
         signer
       );
-      await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenBn);
+      const approveTx = await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenBn);
+      console.log('[useAppState] Approval tx sent:', approveTx.hash);
+      await approveTx.wait();
+      console.log('[useAppState] Approval confirmed');
 
       // Add liquidity
+      console.log('[useAppState] Adding liquidity with ETH:', ethBn.toString(), 'Token:', tokenBn.toString());
       const tx = await contract.addLiquidity(tokenBn, { value: ethBn });
       const receipt = await tx.wait();
 
