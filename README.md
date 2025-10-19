@@ -9,7 +9,7 @@
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://zama-dex-qlvj35od7-kohens-projects.vercel.app |
+| **Live Demo** | https://zama-dex.vercel.app/ |
 | **GitHub** | https://github.com/dharmanan/ZAMA-DEX-FHE |
 | **Smart Contract** | [FHEDEX.sol](./contracts/FHEDEX.sol) |
 | **Token Contract** | [ZamaToken.sol](./contracts/ZamaToken.sol) |
@@ -81,7 +81,7 @@ This project is a **complete FHE-powered DEX** using **Zama FHEVM** for privacy-
 
 ### View Live Demo
 ```
-https://zama-dex-fhe.vercel.app
+https://zama-dex.vercel.app/
 ```
 
 ### Run Locally
