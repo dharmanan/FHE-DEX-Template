@@ -25,6 +25,14 @@ dist-ssr
 
 # Environment secrets
 .env
+.env.local
+.env.*.local
+
+# Private keys and sensitive data
+*.bak
+recover-*.js
+**/private-key*
+**/mnemonic*
 
 node_modules
 .env
