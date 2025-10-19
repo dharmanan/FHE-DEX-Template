@@ -64,32 +64,42 @@ export function useAppState(): UseDEXReturnType {
   // Load user balances from blockchain
   const loadUserBalances = useCallback(async (address: string) => {
     try {
+      console.log('[useAppState] Starting to load balances for:', address);
+      
       if (!(window as any).ethereum) {
         console.warn('[useAppState] ethereum not available');
         return;
       }
 
       const provider = new BrowserProvider((window as any).ethereum);
+      console.log('[useAppState] Provider created');
       
       // Get ETH balance
       const ethBal = await provider.getBalance(address);
       const ethAmount = parseFloat(formatEther(ethBal));
       setUserEthBalance(ethAmount);
+      console.log('[useAppState] ETH balance loaded:', ethAmount);
 
       // Get token balance
-      const tokenContract = new Contract(
-        ZAMA_TOKEN_ADDRESS,
-        ZAMA_TOKEN_ABI_OBJ,
-        provider
-      );
-      
-      const tokenBal = await tokenContract.balanceOf(address);
-      const tokenAmount = parseFloat(formatUnits(tokenBal, 18));
-      setUserTokenBalance(tokenAmount);
+      try {
+        const tokenContract = new Contract(
+          ZAMA_TOKEN_ADDRESS,
+          ZAMA_TOKEN_ABI_OBJ,
+          provider
+        );
+        
+        const tokenBal = await tokenContract.balanceOf(address);
+        const tokenAmount = parseFloat(formatUnits(tokenBal, 18));
+        setUserTokenBalance(tokenAmount);
+        console.log('[useAppState] Token balance loaded:', tokenAmount);
+      } catch (tokenError) {
+        console.warn('[useAppState] Token balance loading failed (might not exist yet):', tokenError);
+        setUserTokenBalance(0);
+      }
 
-      console.log('[useAppState] User balances loaded:', { ethAmount, tokenAmount });
+      console.log('[useAppState] User balances loaded successfully');
     } catch (error) {
-      console.warn('[useAppState] Failed to load user balances:', error);
+      console.error('[useAppState] Failed to load user balances:', error);
     }
   }, []);
 
@@ -101,6 +111,7 @@ export function useAppState(): UseDEXReturnType {
         return;
       }
 
+      console.log('[useAppState] Requesting accounts...');
       const accounts = await (window as any).ethereum.request({ 
         method: 'eth_requestAccounts' 
       });
@@ -119,8 +130,11 @@ export function useAppState(): UseDEXReturnType {
         console.log('[useAppState] Chain ID:', chainIdNum);
 
         // Load blockchain data
+        console.log('[useAppState] Loading user balances...');
         await loadUserBalances(address);
+        console.log('[useAppState] Loading pool reserves...');
         await loadPoolReserves();
+        console.log('[useAppState] All data loaded');
       }
     } catch (error) {
       console.error('Failed to connect wallet:', error);
@@ -290,6 +304,13 @@ export function useAppState(): UseDEXReturnType {
       setIsLoading(false);
     }
   }, [userAddress, loadUserBalances, loadPoolReserves]);
+
+  // Load pool reserves and user balances when user address changes
+  useEffect(() => {
+    if (userAddress) {
+      loadUserBalances(userAddress);
+    }
+  }, [userAddress, loadUserBalances]);
 
   // Listen for account/chain changes and load pool data on mount
   useEffect(() => {
