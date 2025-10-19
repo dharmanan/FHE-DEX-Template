@@ -211,11 +211,14 @@ export function useAppState(): UseDEXReturnType {
         const tokenAmountBn = parseUnits(inputAmount.toString(), 18);
         
         // Approve token transfer
-        console.log('[useAppState] Approving token transfer');
-        await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenAmountBn);
+        console.log('[useAppState] Starting approval for:', tokenAmountBn.toString());
+        const approveTx = await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenAmountBn);
+        console.log('[useAppState] Approval tx sent:', approveTx.hash);
+        const approveReceipt = await approveTx.wait();
+        console.log('[useAppState] Approval confirmed:', approveReceipt?.transactionHash);
         
         // Swap
-        console.log('[useAppState] Executing swapTokenForEth');
+        console.log('[useAppState] Executing swapTokenForEth with amount:', tokenAmountBn.toString());
         tx = await contract.swapTokenForEth(tokenAmountBn);
       }
 
