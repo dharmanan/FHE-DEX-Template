@@ -155,6 +155,21 @@ export function useAppState(): UseDEXReturnType {
     setTransactionSummary(null);
   }, []);
 
+  // Helper to retry a function
+  const retryAsync = useCallback(async (fn: () => Promise<void>, maxRetries = 3, delayMs = 500) => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await fn();
+        return;
+      } catch (error) {
+        console.warn(`Retry ${i + 1}/${maxRetries} failed:`, error);
+        if (i < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+  }, []);
+
   // Swap function
   const swap = useCallback(async (inputAmount: number, inputAsset: 'ETH' | 'TOKEN') => {
     if (!userAddress) {
@@ -168,6 +183,7 @@ export function useAppState(): UseDEXReturnType {
         throw new Error('MetaMask not available');
       }
 
+      console.log('[useAppState] Starting swap:', { inputAmount, inputAsset });
       const provider = new BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       const contract = new Contract(
@@ -181,6 +197,7 @@ export function useAppState(): UseDEXReturnType {
 
       if (inputAsset === 'ETH') {
         // Swap ETH for Token
+        console.log('[useAppState] Executing swapEthForToken');
         tx = await contract.swapEthForToken({ value: amountBn });
       } else {
         // Swap Token for ETH
@@ -193,27 +210,37 @@ export function useAppState(): UseDEXReturnType {
         const tokenAmountBn = parseUnits(inputAmount.toString(), 18);
         
         // Approve token transfer
+        console.log('[useAppState] Approving token transfer');
         await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenAmountBn);
         
         // Swap
+        console.log('[useAppState] Executing swapTokenForEth');
         tx = await contract.swapTokenForEth(tokenAmountBn);
       }
 
+      console.log('[useAppState] Waiting for transaction:', tx.hash);
       const receipt = await tx.wait();
-      console.log('[useAppState] Swap completed:', { txHash: tx.hash });
+      console.log('[useAppState] Swap completed:', { txHash: tx.hash, receipt });
 
-      setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...`);
+      setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading balances...`);
 
-      // Reload data
-      await loadUserBalances(userAddress);
-      await loadPoolReserves();
+      // Reload data with retry
+      console.log('[useAppState] Reloading balances and pool state');
+      await retryAsync(async () => {
+        await loadUserBalances(userAddress);
+        await loadPoolReserves();
+      }, 5, 1000);
+
+      console.log('[useAppState] Data reloaded successfully');
+      setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
       console.error('[useAppState] Swap failed:', error);
-      setTransactionSummary(`❌ Swap failed: ${error instanceof Error ? error.message : String(error)}`);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      setTransactionSummary(`❌ Swap failed:\n${errorMsg}`);
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync]);
 
   // Deposit function
   const deposit = useCallback(async (ethAmount: number) => {
@@ -253,18 +280,22 @@ export function useAppState(): UseDEXReturnType {
       const receipt = await tx.wait();
 
       console.log('[useAppState] Deposit completed:', { txHash: tx.hash });
-      setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...`);
+      setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading data...`);
 
-      // Reload data
-      await loadUserBalances(userAddress);
-      await loadPoolReserves();
+      // Reload data with retry
+      await retryAsync(async () => {
+        await loadUserBalances(userAddress);
+        await loadPoolReserves();
+      }, 5, 1000);
+
+      setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
       console.error('[useAppState] Deposit failed:', error);
       setTransactionSummary(`❌ Deposit failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, ethReserve, tokenReserve, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, ethReserve, tokenReserve, loadUserBalances, loadPoolReserves, retryAsync]);
 
   // Withdraw function
   const withdraw = useCallback(async (lpAmount: number) => {
@@ -292,18 +323,22 @@ export function useAppState(): UseDEXReturnType {
       const receipt = await tx.wait();
 
       console.log('[useAppState] Withdraw completed:', { txHash: tx.hash });
-      setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...`);
+      setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading data...`);
 
-      // Reload data
-      await loadUserBalances(userAddress);
-      await loadPoolReserves();
+      // Reload data with retry
+      await retryAsync(async () => {
+        await loadUserBalances(userAddress);
+        await loadPoolReserves();
+      }, 5, 1000);
+
+      setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
       console.error('[useAppState] Withdraw failed:', error);
       setTransactionSummary(`❌ Withdrawal failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync]);
 
   // Load pool reserves and user balances when user address changes
   useEffect(() => {
