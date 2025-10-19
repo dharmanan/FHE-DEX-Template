@@ -1,18 +1,19 @@
 # ZAMA DEX FHE - Privacy-Preserving Decentralized Exchange
 
-**Status**: 🟢 Live on Sepolia  
-**Network**: Ethereum Sepolia Testnet (ChainID 11155111)  
-**Note**: Awaiting Zama FHEVM ChainID 8008 public RPC endpoint  
+**Status**: ✅ Production Ready - Sepolia Testnet  
+**Network**: Ethereum Sepolia (ChainID 11155111)  
+**Latest Deployment**: October 19, 2025  
+**Latest Contracts**: See [Deployment Info](#-current-deployment-sepolia-testnet) below
 
 ## 🚀 Quick Links
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://zama-dex-fhe.vercel.app |
+| **Live Demo** | https://zama-dex-qlvj35od7-kohens-projects.vercel.app |
 | **GitHub** | https://github.com/dharmanan/ZAMA-DEX-FHE |
 | **Smart Contract** | [FHEDEX.sol](./contracts/FHEDEX.sol) |
 | **Token Contract** | [ZamaToken.sol](./contracts/ZamaToken.sol) |
-| **Zama Testnet** | ChainID 8008 - https://testnet-rpc.zama.ai:8545 |
+| **Future: Zama FHEVM** | ChainID 8008 - Ready for FHE migration |
 
 ---
 
@@ -221,21 +222,36 @@ npm run test:watch
 
 ## 🌐 Network Configuration
 
-### Current Deployment (Sepolia Testnet)
+### Current Deployment (Sepolia Testnet - October 19, 2025)
 - **Network**: Ethereum Sepolia
 - **ChainId**: 11155111  
 - **RPC**: https://eth-sepolia.public.blastapi.io
-- **Status**: ✅ Live
+- **Status**: ✅ Production Ready
 - **Contracts**:
-  - ZamaToken: `0x8B5713e21d09aB4E535dE5dCCCd1C21f8d179230`
-  - FHEDEX DEX: `0x46513f306Fef0Ccc48485497e16113CA7A1a6BcF`
+  - **ZamaToken**: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
+  - **FHEDEX DEX**: `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be`
+  - **Pool**: 0.05 ETH + 500 ZAMA
+- **Operations**: ✅ Swap, Deposit, Withdraw all working
+- **Features**: 
+  - ✅ ETH ↔ TOKEN swaps (Constant Product Formula)
+  - ✅ Liquidity deposit with LP tokens
+  - ✅ Liquidity withdrawal (returns BOTH ETH + TOKEN)
+  - ✅ Real-time balance polling
 
-### Target Network (Zama FHEVM - Awaiting Public RPC)
+### Target Network (Zama FHEVM - Ready for Migration)
 - **Network**: Zama FHEVM Testnet
 - **ChainId**: 8008
-- **RPC**: testnet-rpc.zama.ai:8545 (currently unavailable - awaiting public endpoint)
-- **Status**: ⏳ Configured, awaiting network availability
-- **Privacy**: Real Homomorphic Encryption (euint64 support)
+- **RPC**: Awaiting public endpoint announcement
+- **Status**: ⏳ Architecture ready, pending Zama public RPC
+- **Privacy**: Full Homomorphic Encryption (euint64 support)
+- **Migration**: Will upgrade to full FHE operations when available
+  - Encrypted pool reserves (euint64)
+  - Homomorphic arithmetic on encrypted data
+  - Private swap amounts invisible to observers
+  - Confidential liquidity positions
+  - Oracle-based decryption settlements
+
+**Next Steps**: When Zama makes ChainID 8008 publicly available, this DEX will be updated to use full FHE encryption for all pool operations.
 
 ---
 
