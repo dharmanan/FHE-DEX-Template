@@ -29,16 +29,31 @@ export function useAppState(): UseDEXReturnType {
   const TOKEN_SYMBOL = 'ZAMA';
   const TOKEN_NAME = 'Zama Token';
 
+  // Helper to get ethers library with retry
+  const getEthersLib = async () => {
+    let ethersLib = (window as any).ethers;
+    let retries = 0;
+    while (!ethersLib && retries < 20) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      ethersLib = (window as any).ethers;
+      retries++;
+    }
+    if (!ethersLib) {
+      throw new Error('ethers.js not available');
+    }
+    return ethersLib;
+  };
+
   // Load pool reserves from blockchain
   const loadPoolReserves = useCallback(async () => {
     try {
-      if (!(window as any).ethereum || !(window as any).ethers) {
-        console.warn('[useAppState] ethereum or ethers not available');
+      if (!(window as any).ethereum) {
+        console.warn('[useAppState] ethereum not available');
         return;
       }
 
-      const ethers = (window as any).ethers;
-      const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+      const ethers = await getEthersLib();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
       const contract = new ethers.Contract(
         DEX_CONTRACT_ADDRESS,
         DEX_ABI_OBJ,
@@ -47,8 +62,8 @@ export function useAppState(): UseDEXReturnType {
 
       if (contract.getPoolReserves) {
         const reserves = await contract.getPoolReserves();
-        const ethRes = parseFloat(ethers.utils.formatEther(reserves.ethBalance || reserves[0] || '0'));
-        const tokenRes = parseFloat(ethers.utils.formatUnits(reserves.tokenBalance || reserves[1] || '0', 18));
+        const ethRes = parseFloat(ethers.formatEther(reserves.ethBalance || reserves[0] || '0'));
+        const tokenRes = parseFloat(ethers.formatUnits(reserves.tokenBalance || reserves[1] || '0', 18));
         
         setEthReserve(ethRes > 0 ? ethRes : 1.0);
         setTokenReserve(tokenRes > 0 ? tokenRes : 100.0);
@@ -59,22 +74,22 @@ export function useAppState(): UseDEXReturnType {
       console.warn('[useAppState] Failed to load pool reserves:', error);
       // Keep default values
     }
-  }, []);
+  }, [getEthersLib]);
 
   // Load user balances from blockchain
   const loadUserBalances = useCallback(async (address: string) => {
     try {
-      if (!(window as any).ethereum || !(window as any).ethers) {
-        console.warn('[useAppState] ethereum or ethers not available');
+      if (!(window as any).ethereum) {
+        console.warn('[useAppState] ethereum not available');
         return;
       }
 
-      const ethers = (window as any).ethers;
-      const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+      const ethers = await getEthersLib();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
       
       // Get ETH balance
       const ethBal = await provider.getBalance(address);
-      const ethAmount = parseFloat(ethers.utils.formatEther(ethBal));
+      const ethAmount = parseFloat(ethers.formatEther(ethBal));
       setUserEthBalance(ethAmount);
 
       // Get token balance
@@ -85,14 +100,14 @@ export function useAppState(): UseDEXReturnType {
       );
       
       const tokenBal = await tokenContract.balanceOf(address);
-      const tokenAmount = parseFloat(ethers.utils.formatUnits(tokenBal, 18));
+      const tokenAmount = parseFloat(ethers.formatUnits(tokenBal, 18));
       setUserTokenBalance(tokenAmount);
 
       console.log('[useAppState] User balances loaded:', { ethAmount, tokenAmount });
     } catch (error) {
       console.warn('[useAppState] Failed to load user balances:', error);
     }
-  }, []);
+  }, [getEthersLib]);
 
   // Connect wallet
   const connectWallet = useCallback(async () => {
@@ -102,8 +117,17 @@ export function useAppState(): UseDEXReturnType {
         return;
       }
 
-      if (!(window as any).ethers) {
-        alert('ethers.js not loaded. Please refresh the page.');
+      // Wait for ethers to load if needed
+      let ethersLib = (window as any).ethers;
+      let retries = 0;
+      while (!ethersLib && retries < 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        ethersLib = (window as any).ethers;
+        retries++;
+      }
+
+      if (!ethersLib) {
+        alert('ethers.js failed to load. Please refresh the page.');
         return;
       }
 
@@ -156,13 +180,13 @@ export function useAppState(): UseDEXReturnType {
 
     setIsLoading(true);
     try {
-      if (!(window as any).ethereum || !(window as any).ethers) {
-        throw new Error('MetaMask or ethers.js not available');
+      if (!(window as any).ethereum) {
+        throw new Error('MetaMask not available');
       }
 
-      const ethers = (window as any).ethers;
-      const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-      const signer = provider.getSigner();
+      const ethers = await getEthersLib();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         DEX_CONTRACT_ADDRESS,
         DEX_ABI_OBJ,
@@ -170,7 +194,7 @@ export function useAppState(): UseDEXReturnType {
       );
 
       let tx;
-      const amountBn = ethers.utils.parseEther(inputAmount.toString());
+      const amountBn = ethers.parseEther(inputAmount.toString());
 
       if (inputAsset === 'ETH') {
         // Swap ETH for Token
@@ -183,7 +207,7 @@ export function useAppState(): UseDEXReturnType {
           signer
         );
         
-        const tokenAmountBn = ethers.utils.parseUnits(inputAmount.toString(), 18);
+        const tokenAmountBn = ethers.parseUnits(inputAmount.toString(), 18);
         
         // Approve token transfer
         await tokenContract.approve(DEX_CONTRACT_ADDRESS, tokenAmountBn);
@@ -206,7 +230,7 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, getEthersLib, loadUserBalances, loadPoolReserves]);
 
   // Deposit function
   const deposit = useCallback(async (ethAmount: number) => {
@@ -217,22 +241,22 @@ export function useAppState(): UseDEXReturnType {
 
     setIsLoading(true);
     try {
-      if (!(window as any).ethereum || !(window as any).ethers) {
-        throw new Error('MetaMask or ethers.js not available');
+      if (!(window as any).ethereum) {
+        throw new Error('MetaMask not available');
       }
 
-      const ethers = (window as any).ethers;
-      const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-      const signer = provider.getSigner();
+      const ethers = await getEthersLib();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         DEX_CONTRACT_ADDRESS,
         DEX_ABI_OBJ,
         signer
       );
 
-      const ethBn = ethers.utils.parseEther(ethAmount.toString());
+      const ethBn = ethers.parseEther(ethAmount.toString());
       const tokenAmount = (ethAmount / ethReserve) * tokenReserve;
-      const tokenBn = ethers.utils.parseUnits(tokenAmount.toString(), 18);
+      const tokenBn = ethers.parseUnits(tokenAmount.toString(), 18);
 
       // Approve token transfer
       const tokenContract = new ethers.Contract(
@@ -258,7 +282,7 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, ethReserve, tokenReserve, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, ethReserve, tokenReserve, getEthersLib, loadUserBalances, loadPoolReserves]);
 
   // Withdraw function
   const withdraw = useCallback(async (lpAmount: number) => {
@@ -269,20 +293,20 @@ export function useAppState(): UseDEXReturnType {
 
     setIsLoading(true);
     try {
-      if (!(window as any).ethereum || !(window as any).ethers) {
-        throw new Error('MetaMask or ethers.js not available');
+      if (!(window as any).ethereum) {
+        throw new Error('MetaMask not available');
       }
 
-      const ethers = (window as any).ethers;
-      const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-      const signer = provider.getSigner();
+      const ethers = await getEthersLib();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         DEX_CONTRACT_ADDRESS,
         DEX_ABI_OBJ,
         signer
       );
 
-      const lpBn = ethers.utils.parseUnits(lpAmount.toString(), 18);
+      const lpBn = ethers.parseUnits(lpAmount.toString(), 18);
       const tx = await contract.removeLiquidity(lpBn);
       const receipt = await tx.wait();
 
@@ -298,7 +322,7 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves]);
+  }, [userAddress, getEthersLib, loadUserBalances, loadPoolReserves]);
 
   // Listen for account/chain changes and load pool data on mount
   useEffect(() => {
