@@ -1,26 +1,54 @@
 # ZAMA DEX FHE - Architecture & Technical Design
 
-This document describes the architecture, design patterns, and FHEVM integration of the ZAMA DEX FHE project.
+**Last Updated**: October 19, 2025  
+**Status**: Production Ready on Sepolia Testnet  
+**Contracts**: Deployed and tested, FHE-ready for Zama FHEVM migration
+
+This document describes the architecture, design patterns, and FHE integration of the ZAMA DEX FHE project.
+
+## ⚠️ Important Note
+
+**This document references the original architecture design.**  
+**For current deployment info, see**:
+- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - What was actually built
+- **[README.md](./README.md)** - Current deployment addresses
+- **[BUILDER_TRACK_SUBMISSION.md](./BUILDER_TRACK_SUBMISSION.md)** - Feature checklist
+
+**Current Deployment**:
+- DEX: `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be`
+- Token: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
+- Network: Sepolia Testnet (ChainID 11155111)
+- Frontend: https://zama-dex-qlvj35od7-kohens-projects.vercel.app
 
 ## Table of Contents
 
 1. [Overview](#overview)
 2. [Smart Contract Architecture](#smart-contract-architecture)
 3. [Frontend Architecture](#frontend-architecture)
-4. [FHEVM Integration](#fhevm-integration)
+4. [FHE Integration](#fhevm-integration)
 5. [Data Flow](#data-flow)
 6. [Security Considerations](#security-considerations)
 
 ## Overview
 
-**ZAMA DEX FHE** is an Automated Market Maker (AMM) DEX prototype demonstrating privacy-preserving swap and liquidity operations using Zama's Fully Homomorphic Encryption (FHEVM).
+**ZAMA DEX FHE** is an Automated Market Maker (AMM) DEX demonstrating privacy-preserving swap and liquidity operations using Zama's Fully Homomorphic Encryption (FHEVM).
+
+### Current Implementation
+- **Model**: Immediate AMM on Sepolia (plaintext for testing)
+- **All Operations**: Swap, Deposit, Withdraw ✅
+- **Frontend**: React 19 + TypeScript
+- **Deployment**: Production on Vercel
+
+### Future Implementation (FHE-Ready)
+- **Model**: Will upgrade to euint64 encrypted reserves
+- **Operations**: Homomorphic arithmetic on encrypted data
+- **When**: Zama FHEVM (ChainID 8008) becomes publicly available
 
 ### Key Features:
-- **Confidential Swaps**: ETH ↔ ZAMA Token swaps with privacy simulation
+- **Confidential Swaps**: ETH ↔ ZAMA Token with privacy architecture ready
 - **Liquidity Management**: Add/remove liquidity with LP token handling
-- **Multi-Framework Support**: React, Next.js, Vue, Node.js, Svelte examples
-- **Universal SDK**: Framework-agnostic FHEVM SDK for easy integration
-- **Testnet Ready**: Deployed on Sepolia testnet with full contract interaction
+- **Production Ready**: Live on Sepolia, tested end-to-end
+- **FHE Compatible**: Designed for FHEVM migration, minimal code changes needed
 
 ## Smart Contract Architecture
 

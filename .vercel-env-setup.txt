@@ -1,0 +1,18 @@
+VERCEL DASHBOARD STEPS:
+
+1. Go to: https://vercel.com/dashboard
+2. Select: kohens-projects/zama-dex-fhe
+3. Settings → Environment Variables
+4. Add/Update these:
+
+VITE_DEX_ADDRESS = 0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be
+VITE_ZAMA_TOKEN_ADDRESS = 0x3630d67C78A3da51549e8608C17883Ea481D817F
+
+5. Click "Save"
+6. Deployments → Redeploy latest commit
+   (or git push triggers auto-redeploy)
+
+Current Deployed:
+- Old DEX: 0xc7a8884fa733510A3A1C7021e38Dd053dDb75e41
+- New DEX: 0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be ← USE THIS
+
