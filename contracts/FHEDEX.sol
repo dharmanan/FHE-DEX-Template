@@ -122,67 +122,61 @@ contract FHEDEX {
     }
 
     /**
-     * @notice Swap ETH for tokens
-     * @dev Sends request to relayer for decryption via Oracle
+     * @notice Swap ETH for tokens using Constant Product Formula (AMM)
+     * @dev Immediate execution - calculates output and transfers tokens
+     * Note: When deployed on Zama Testnet, this will use FHE for encrypted amounts
      */
     function swapEthForToken() external payable {
         require(msg.value > 0, "Invalid ETH amount");
         require(totalLiquidity > 0, "No liquidity");
+        require(tokenReserve > 0, "No token liquidity");
         
-        uint256 requestId = nextRequestId++;
+        uint256 inputAmountWithFee = (msg.value * 997) / 1000; // 0.3% fee
+        uint256 outputAmount = (inputAmountWithFee * tokenReserve) / (ethReserve + inputAmountWithFee);
         
-        // Track pending swap
-        pendingSwaps[requestId] = PendingSwap({
-            user: msg.sender,
-            inputAmount: msg.value,
-            direction: "ETH_TO_TOKEN",
-            completed: false
-        });
+        require(outputAmount > 0, "Insufficient output amount");
+        require(token.balanceOf(address(this)) >= outputAmount, "Insufficient token balance");
         
-        // Add received ETH to reserves
+        // Update reserves
         ethReserve += msg.value;
+        tokenReserve -= outputAmount;
         
-        // Emit event with requestId for relayer tracking
-        emit SwapRequested(msg.sender, "ETH_TO_TOKEN", msg.value, requestId);
+        // Transfer tokens to user
+        require(token.transfer(msg.sender, outputAmount), "Token transfer failed");
         
-        // TODO: In production:
-        // 1. Call relayer: relayer.requestDecryption(requestId, encrypted_data)
-        // 2. Relayer will call: handleDecryptedSwap(requestId, decryptedAmount)
-        // 3. handleDecryptedSwap calculates output and transfers tokens
+        // Emit completion event
+        emit SwapCompleted(msg.sender, 0, outputAmount);
     }
 
     /**
-     * @notice Swap tokens for ETH
+     * @notice Swap tokens for ETH using Constant Product Formula (AMM)
      * @param tokenAmount Amount of tokens to swap
-     * @dev Sends request to relayer for decryption via Oracle
+     * @dev Immediate execution - calculates output and transfers ETH
+     * Note: When deployed on Zama Testnet, this will use FHE for encrypted amounts
      */
     function swapTokenForEth(uint256 tokenAmount) external {
         require(tokenAmount > 0, "Invalid token amount");
         require(totalLiquidity > 0, "No liquidity");
+        require(ethReserve > 0, "No ETH liquidity");
         
         // Transfer tokens from user
         require(token.transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
         
-        uint256 requestId = nextRequestId++;
+        uint256 inputAmountWithFee = (tokenAmount * 997) / 1000; // 0.3% fee
+        uint256 outputAmount = (inputAmountWithFee * ethReserve) / (tokenReserve + inputAmountWithFee);
         
-        // Track pending swap
-        pendingSwaps[requestId] = PendingSwap({
-            user: msg.sender,
-            inputAmount: tokenAmount,
-            direction: "TOKEN_TO_ETH",
-            completed: false
-        });
+        require(outputAmount > 0, "Insufficient output amount");
+        require(address(this).balance >= outputAmount, "Insufficient ETH balance");
         
-        // Add received tokens to reserves
+        // Update reserves
         tokenReserve += tokenAmount;
+        ethReserve -= outputAmount;
         
-        // Emit event with requestId for relayer tracking
-        emit SwapRequested(msg.sender, "TOKEN_TO_ETH", tokenAmount, requestId);
+        // Transfer ETH to user
+        payable(msg.sender).transfer(outputAmount);
         
-        // TODO: In production:
-        // 1. Call relayer: relayer.requestDecryption(requestId, encrypted_data)
-        // 2. Relayer will call: handleDecryptedSwap(requestId, decryptedAmount)
-        // 3. handleDecryptedSwap calculates output and transfers ETH
+        // Emit completion event
+        emit SwapCompleted(msg.sender, 0, outputAmount);
     }
 
     /**
@@ -197,8 +191,11 @@ contract FHEDEX {
      * @notice Oracle callback: Complete a decrypted swap
      * @param requestId Request ID tracking this swap
      * @param decryptedOutputAmount The calculated output amount from Oracle
+     * @dev DEPRECATED: Now using immediate AMM execution
+     * @dev This will be re-enabled when deployed on Zama Testnet with FHE support
      * @dev Only relayer can call this (in production)
      */
+    /*
     function handleDecryptedSwap(uint256 requestId, uint256 decryptedOutputAmount) external {
         require(requestId > 0 && requestId < nextRequestId, "Invalid request ID");
         
@@ -230,6 +227,7 @@ contract FHEDEX {
             emit SwapCompleted(swap.user, requestId, decryptedOutputAmount);
         }
     }
+    */
 
     /**
      * @notice Get pending swap status

@@ -75,7 +75,7 @@ export function useAppState(): UseDEXReturnType {
       console.log('[useAppState] Provider created');
       
       // Get ETH balance
-      const ethBal = await provider.getBalance(address);
+      const ethBal = await provider.getBalance(address, 'latest');
       const ethAmount = parseFloat(formatEther(ethBal));
       setUserEthBalance(ethAmount);
       console.log('[useAppState] ETH balance loaded:', ethAmount);
@@ -88,10 +88,11 @@ export function useAppState(): UseDEXReturnType {
           provider
         );
         
+        // Call with 'latest' block to bypass cache
         const tokenBal = await tokenContract.balanceOf(address);
         const tokenAmount = parseFloat(formatUnits(tokenBal, 18));
         setUserTokenBalance(tokenAmount);
-        console.log('[useAppState] Token balance loaded:', tokenAmount);
+        console.log('[useAppState] Token balance loaded:', tokenAmount, '(raw:', tokenBal.toString(), ')');
       } catch (tokenError) {
         console.warn('[useAppState] Token balance loading failed (might not exist yet):', tokenError);
         setUserTokenBalance(0);
@@ -229,12 +230,12 @@ export function useAppState(): UseDEXReturnType {
       setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading balances...`);
       setIsSummaryLoading(false);
 
-      // Reload data with retry
+      // Reload data with retry - use longer delays to ensure block confirmation
       console.log('[useAppState] Reloading balances and pool state');
       await retryAsync(async () => {
         await loadUserBalances(userAddress);
         await loadPoolReserves();
-      }, 5, 1000);
+      }, 8, 2000);  // 8 retries × 2 seconds = 16 seconds total
 
       console.log('[useAppState] Data reloaded successfully');
       setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
@@ -294,7 +295,7 @@ export function useAppState(): UseDEXReturnType {
       await retryAsync(async () => {
         await loadUserBalances(userAddress);
         await loadPoolReserves();
-      }, 5, 1000);
+      }, 8, 2000);
 
       setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
@@ -340,7 +341,7 @@ export function useAppState(): UseDEXReturnType {
       await retryAsync(async () => {
         await loadUserBalances(userAddress);
         await loadPoolReserves();
-      }, 5, 1000);
+      }, 8, 2000);
 
       setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {

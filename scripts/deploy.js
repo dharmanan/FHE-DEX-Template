@@ -6,28 +6,30 @@ async function main() {
   
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
-  console.log("Account balance:", (await deployer.getBalance()).toString());
+  const balance = await deployer.provider.getBalance(deployer.address);
+  console.log("Account balance:", balance.toString());
 
   // ZamaToken'ı deploy et
   console.log("\n1. Deploying ZamaToken...");
   const ZamaToken = await hre.ethers.getContractFactory("ZamaToken");
   const zamaToken = await ZamaToken.deploy();
-  await zamaToken.deployed();
-  const tokenAddress = zamaToken.address;
+  const zamaTokenDeployed = await zamaToken.waitForDeployment();
+  const tokenAddress = await zamaTokenDeployed.getAddress();
   console.log(`✓ ZamaToken deployed to: ${tokenAddress}`);
 
   // FHEDEX'i deploy et
   console.log("\n2. Deploying FHEDEX...");
   const FHEDEX = await hre.ethers.getContractFactory("FHEDEX");
   const fhedex = await FHEDEX.deploy(tokenAddress);
-  await fhedex.deployed();
-  const fhedexAddress = fhedex.address;
+  const fhedexDeployed = await fhedex.waitForDeployment();
+  const fhedexAddress = await fhedexDeployed.getAddress();
   console.log(`✓ FHEDEX deployed to: ${fhedexAddress}`);
 
   // Deployment info'yu kaydet
+  const network = await deployer.provider.getNetwork();
   const deploymentInfo = {
     network: hre.network.name,
-    chainId: (await hre.ethers.provider.getNetwork()).chainId,
+    chainId: network.chainId,
     zamaToken: tokenAddress,
     fhedex: fhedexAddress,
     deployer: deployer.address,
