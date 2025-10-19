@@ -85,14 +85,17 @@ contract FHEDEX {
         // Transfer tokens from user
         require(token.transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
         
-        // Add to reserves (simplified - no encryption)
-        ethReserve += msg.value;
-        tokenReserve += tokenAmount;
+        // Calculate LP tokens proportional to the deposit
+        // LP tokens = sqrt(ETH_deposited * TOKEN_deposited)
+        uint256 lpTokens = sqrt(msg.value * tokenAmount);
         
-        // Calculate LP tokens (simplified - proportional to ETH deposit)
-        uint256 lpTokens = (msg.value * totalLiquidity) / (address(this).balance - msg.value);
+        // Update state
         totalLiquidity += lpTokens;
         userLiquidity[msg.sender] += lpTokens;
+        
+        // Add to reserves
+        ethReserve += msg.value;
+        tokenReserve += tokenAmount;
         
         emit LiquidityAdded(msg.sender, lpTokens);
     }

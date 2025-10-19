@@ -1,0 +1,8 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "zamaToken": "0x2080Db70a9490Eb7E3d7C5ebD58C36F58CE908A1",
+  "fhedex": "0xc7a8884fa733510A3A1C7021e38Dd053dDb75e41",
+  "deployer": "0x20cDAd07152eF163CAd9Be2cDe1766298B883d71",
+  "timestamp": "2025-10-19T01:27:13.011Z"
+}
