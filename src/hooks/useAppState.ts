@@ -178,6 +178,7 @@ export function useAppState(): UseDEXReturnType {
     }
 
     setIsLoading(true);
+    setIsSummaryLoading(true);
     try {
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
@@ -223,6 +224,7 @@ export function useAppState(): UseDEXReturnType {
       console.log('[useAppState] Swap completed:', { txHash: tx.hash, receipt });
 
       setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading balances...`);
+      setIsSummaryLoading(false);
 
       // Reload data with retry
       console.log('[useAppState] Reloading balances and pool state');
@@ -237,6 +239,7 @@ export function useAppState(): UseDEXReturnType {
       console.error('[useAppState] Swap failed:', error);
       const errorMsg = error instanceof Error ? error.message : String(error);
       setTransactionSummary(`❌ Swap failed:\n${errorMsg}`);
+      setIsSummaryLoading(false);
     } finally {
       setIsLoading(false);
     }
@@ -250,6 +253,7 @@ export function useAppState(): UseDEXReturnType {
     }
 
     setIsLoading(true);
+    setIsSummaryLoading(true);
     try {
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
@@ -281,6 +285,7 @@ export function useAppState(): UseDEXReturnType {
 
       console.log('[useAppState] Deposit completed:', { txHash: tx.hash });
       setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading data...`);
+      setIsSummaryLoading(false);
 
       // Reload data with retry
       await retryAsync(async () => {
@@ -292,6 +297,7 @@ export function useAppState(): UseDEXReturnType {
     } catch (error) {
       console.error('[useAppState] Deposit failed:', error);
       setTransactionSummary(`❌ Deposit failed: ${error instanceof Error ? error.message : String(error)}`);
+      setIsSummaryLoading(false);
     } finally {
       setIsLoading(false);
     }
@@ -305,6 +311,7 @@ export function useAppState(): UseDEXReturnType {
     }
 
     setIsLoading(true);
+    setIsSummaryLoading(true);
     try {
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
@@ -324,6 +331,7 @@ export function useAppState(): UseDEXReturnType {
 
       console.log('[useAppState] Withdraw completed:', { txHash: tx.hash });
       setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...\n\nReloading data...`);
+      setIsSummaryLoading(false);
 
       // Reload data with retry
       await retryAsync(async () => {
@@ -335,6 +343,7 @@ export function useAppState(): UseDEXReturnType {
     } catch (error) {
       console.error('[useAppState] Withdraw failed:', error);
       setTransactionSummary(`❌ Withdrawal failed: ${error instanceof Error ? error.message : String(error)}`);
+      setIsSummaryLoading(false);
     } finally {
       setIsLoading(false);
     }

@@ -17,6 +17,7 @@ export const SwapView: React.FC<SwapViewProps> = ({ dex, onInputChange }) => {
   const [inputAmount, setInputAmount] = useState('');
   const [outputAmount, setOutputAmount] = useState('');
   const [inputAsset, setInputAsset] = useState<'ETH' | 'TOKEN'>('ETH');
+  const [isSwapping, setIsSwapping] = useState(false);
   
   const outputAsset = inputAsset === 'ETH' ? 'TOKEN' : 'ETH';
   
@@ -57,11 +58,27 @@ export const SwapView: React.FC<SwapViewProps> = ({ dex, onInputChange }) => {
 
   }, [inputAmount, inputAsset, dex.ethReserve, dex.tokenReserve, dex.TOKEN_SYMBOL, onInputChange, inputSymbol]);
 
-  const handleSwap = () => {
-    const amount = parseFloat(inputAmount);
-    if (!isNaN(amount) && amount > 0) {
-      dex.swap(amount, inputAsset);
+  // Monitor dex.isLoading and reset local swap state when done
+  useEffect(() => {
+    if (!dex.isLoading && isSwapping) {
+      console.log('[SwapView] Swap completed, resetting state');
+      setIsSwapping(false);
       setInputAmount('');
+    }
+  }, [dex.isLoading, isSwapping]);
+
+  const handleSwap = () => {
+    // Prevent multiple clicks
+    if (isSwapping || dex.isLoading) {
+      console.log('[SwapView] Swap already in progress, ignoring click');
+      return;
+    }
+
+    const amount = parseFloat(inputAmount);
+    if (!isNaN(amount) && amount > 0 && amount <= userInBalance) {
+      console.log('[SwapView] Initiating swap', { amount, inputAsset });
+      setIsSwapping(true);
+      dex.swap(amount, inputAsset);
     }
   };
 
@@ -125,10 +142,10 @@ export const SwapView: React.FC<SwapViewProps> = ({ dex, onInputChange }) => {
 
       <button
         onClick={handleSwap}
-        disabled={dex.isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > userInBalance}
+        disabled={isSwapping || dex.isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > userInBalance}
         className="w-full bg-yellow-400 text-neutral-900 font-bold py-3 rounded-lg hover:bg-yellow-300 transition-colors duration-200 disabled:bg-neutral-700 disabled:text-neutral-400 disabled:cursor-not-allowed"
       >
-        {dex.isLoading ? 'Processing...' : 'Swap'}
+        {isSwapping || dex.isLoading ? 'Processing...' : 'Swap'}
       </button>
     </div>
   );
