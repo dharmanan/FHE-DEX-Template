@@ -10,19 +10,23 @@ import {
   DEX_CONTRACT_ADDRESS, 
   ZAMA_TOKEN_ADDRESS, 
   DEX_ABI_OBJ, 
-  ZAMA_TOKEN_ABI_OBJ 
+  ZAMA_TOKEN_ABI_OBJ,
+  INITIAL_ETH_RESERVE,
+  INITIAL_TOKEN_RESERVE,
+  INITIAL_USER_ETH_BALANCE,
+  INITIAL_USER_TOKEN_BALANCE
 } from '../../constants';
 
 export function useAppState(): UseDEXReturnType {
-  const [isLiveMode, setIsLiveMode] = useState(true);
+  const [isLiveMode, setIsLiveMode] = useState(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
-  const [userEthBalance, setUserEthBalance] = useState(0);
-  const [userTokenBalance, setUserTokenBalance] = useState(0);
-  const [ethReserve, setEthReserve] = useState(1.0);
-  const [tokenReserve, setTokenReserve] = useState(100.0);
+  const [userEthBalance, setUserEthBalance] = useState(INITIAL_USER_ETH_BALANCE);
+  const [userTokenBalance, setUserTokenBalance] = useState(INITIAL_USER_TOKEN_BALANCE);
+  const [ethReserve, setEthReserve] = useState(INITIAL_ETH_RESERVE);
+  const [tokenReserve, setTokenReserve] = useState(INITIAL_TOKEN_RESERVE);
   const [userLiquidity, setUserLiquidity] = useState(0);
-  const [totalLiquidity, setTotalLiquidity] = useState(100);
+  const [totalLiquidity, setTotalLiquidity] = useState(INITIAL_ETH_RESERVE * INITIAL_TOKEN_RESERVE);
   const [isLoading, setIsLoading] = useState(false);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [transactionSummary, setTransactionSummary] = useState<string | null>(null);
@@ -427,6 +431,26 @@ export function useAppState(): UseDEXReturnType {
       clearInterval(poolPollInterval);
     };
   }, [loadPoolReserves, loadUserBalances, disconnectWallet]);
+
+  // Handle mode transitions (Live ↔ Dummy)
+  useEffect(() => {
+    if (isLiveMode) {
+      // Live Mode: connect wallet and load blockchain data
+      console.log('[useAppState] Switching to Live Mode');
+      connectWallet();
+    } else {
+      // Dummy Mode: use hardcoded values and disconnect wallet
+      console.log('[useAppState] Switching to Dummy Mode');
+      disconnectWallet();
+      setUserAddress(null);
+      setUserEthBalance(INITIAL_USER_ETH_BALANCE);
+      setUserTokenBalance(INITIAL_USER_TOKEN_BALANCE);
+      setEthReserve(INITIAL_ETH_RESERVE);
+      setTokenReserve(INITIAL_TOKEN_RESERVE);
+      setUserLiquidity(0);
+      setTotalLiquidity(INITIAL_ETH_RESERVE * INITIAL_TOKEN_RESERVE);
+    }
+  }, [isLiveMode, connectWallet, disconnectWallet]);
 
   return {
     ethReserve,
