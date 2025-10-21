@@ -255,6 +255,69 @@ npm run test:watch
 
 ---
 
+## 🔄 FHE Migration Roadmap
+
+### Current Status (October 2025)
+- ✅ **Dummy Mode**: Full UI/UX testing on localhost
+- ✅ **Sepolia Testnet**: Production-ready contracts (non-encrypted)
+- ⏳ **Waiting for**: Zama v0.97 + Public FHEVM RPC (ChainID 8008)
+
+### Why We're Waiting
+1. **Zama FHEVM Status**:
+   - v0.97 release: Adds full `euint64` support
+   - Public RPC: ChainID 8008 (currently in closed testnet)
+   - ETA: Late October 2025 (approx)
+
+2. **Current Limitations**:
+   - No public FHEVM RPC endpoint yet
+   - Only whitelist testnet available (requires access request)
+   - v0.96 has limited encrypted operations
+
+### Implementation Plan (Post v0.97)
+
+**Phase 1: Contract Migration** (~2-3 hours)
+```solidity
+// Change from:
+uint256 ethReserve;
+uint256 tokenReserve;
+
+// To:
+euint64 ethReserve;
+euint64 tokenReserve;
+
+// Replace swap math:
+// From: uint256 output = (amount * tokenReserve) / (ethReserve + amount);
+// To: euint64 output = FHE.div(FHE.mul(amount, tokenReserve), FHE.add(ethReserve, amount));
+```
+
+**Phase 2: Frontend Updates** (~30 mins)
+- Update contract addresses (ChainID 8008)
+- Adjust gas estimates for FHE operations (higher due to encryption)
+- Test encrypted data flows
+
+**Phase 3: Testing & Verification** (~1-2 hours)
+- Deploy to Zama FHEVM testnet
+- Verify swap operations with encrypted amounts
+- Test decryption callbacks with Oracle
+
+**Total Migration Time**: ~4-5 hours from code to live
+
+### What Changes After Migration
+| Feature | Before (Sepolia) | After (Zama FHEVM) |
+|---------|------------------|-------------------|
+| Pool Reserves | Public (uint256) | **Encrypted (euint64)** |
+| Swap Amounts | Visible | **Private** |
+| Price Impact | Observable | **Hidden** |
+| Liquidity Positions | Public | **Confidential** |
+| User Balances | Queryable | **Encrypted** |
+
+### How to Track Progress
+- 📍 **Zama Announcements**: https://twitter.com/zama_ai
+- 📍 **FHEVM Docs**: https://docs.zama.ai/fhevm
+- 📍 **This Repo**: Updates when v0.97 releases
+
+---
+
 ## 📄 License
 
 MIT - See LICENSE file for details
