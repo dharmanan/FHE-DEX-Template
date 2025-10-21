@@ -194,7 +194,7 @@ export function useAppState(): UseDEXReturnType {
 
   // Swap function
   const swap = useCallback(async (inputAmount: number, inputAsset: 'ETH' | 'TOKEN') => {
-    if (!userAddress) {
+    if (!userAddress && isLiveMode) {
       alert('Please connect wallet first');
       return;
     }
@@ -202,6 +202,43 @@ export function useAppState(): UseDEXReturnType {
     setIsLoading(true);
     setIsSummaryLoading(true);
     try {
+      // Dummy Mode: Simulate swap locally
+      if (!isLiveMode) {
+        console.log('[useAppState] Dummy Mode Swap:', { inputAmount, inputAsset });
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Calculate output using AMM formula
+        const k = ethReserve * tokenReserve;
+        const fee = inputAmount * 0.003;
+        const amountAfterFee = inputAmount - fee;
+        let outputAmount = 0;
+
+        if (inputAsset === 'ETH') {
+          const newEthReserve = ethReserve + amountAfterFee;
+          const newTokenReserve = k / newEthReserve;
+          outputAmount = tokenReserve - newTokenReserve;
+          setEthReserve(newEthReserve);
+          setTokenReserve(newTokenReserve);
+          setUserEthBalance(userEthBalance - inputAmount);
+          setUserTokenBalance(userTokenBalance + outputAmount);
+        } else {
+          const newTokenReserve = tokenReserve + amountAfterFee;
+          const newEthReserve = k / newTokenReserve;
+          outputAmount = ethReserve - newEthReserve;
+          setTokenReserve(newTokenReserve);
+          setEthReserve(newEthReserve);
+          setUserTokenBalance(userTokenBalance - inputAmount);
+          setUserEthBalance(userEthBalance + outputAmount);
+        }
+
+        setTransactionSummary(`✅ Swap successful!\nSwapped ${inputAmount} ${inputAsset} → ${outputAmount.toFixed(5)} ${inputAsset === 'ETH' ? 'ZAMA' : 'ETH'}`);
+        setIsSummaryLoading(false);
+        return;
+      }
+
+      // Live Mode: Use blockchain
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
       }
@@ -253,10 +290,12 @@ export function useAppState(): UseDEXReturnType {
 
       // Reload data with retry - use longer delays to ensure block confirmation
       console.log('[useAppState] Reloading balances and pool state');
-      await retryAsync(async () => {
-        await loadUserBalances(userAddress);
-        await loadPoolReserves();
-      }, 8, 2000);  // 8 retries × 2 seconds = 16 seconds total
+      if (userAddress) {
+        await retryAsync(async () => {
+          await loadUserBalances(userAddress);
+          await loadPoolReserves();
+        }, 8, 2000);  // 8 retries × 2 seconds = 16 seconds total
+      }
 
       console.log('[useAppState] Data reloaded successfully');
       setTransactionSummary(`✅ Swap successful!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
@@ -268,11 +307,11 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync]);
+  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync, isLiveMode, ethReserve, tokenReserve, userEthBalance, userTokenBalance]);
 
   // Deposit function
   const deposit = useCallback(async (ethAmount: number) => {
-    if (!userAddress) {
+    if (!userAddress && isLiveMode) {
       alert('Please connect wallet first');
       return;
     }
@@ -280,6 +319,28 @@ export function useAppState(): UseDEXReturnType {
     setIsLoading(true);
     setIsSummaryLoading(true);
     try {
+      // Dummy Mode: Simulate deposit locally
+      if (!isLiveMode) {
+        console.log('[useAppState] Dummy Mode Deposit:', { ethAmount });
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const tokenAmount = (ethAmount / ethReserve) * tokenReserve;
+        const lpAmount = Math.sqrt(ethAmount * tokenAmount);
+        
+        setUserEthBalance(userEthBalance - ethAmount);
+        setUserTokenBalance(userTokenBalance - tokenAmount);
+        setUserLiquidity(userLiquidity + lpAmount);
+        setEthReserve(ethReserve + ethAmount);
+        setTokenReserve(tokenReserve + tokenAmount);
+        setTotalLiquidity(totalLiquidity + lpAmount);
+
+        setTransactionSummary(`✅ Liquidity added!\nAdded ${ethAmount} ETH + ${tokenAmount.toFixed(2)} ZAMA\nLP tokens: ${lpAmount.toFixed(5)}`);
+        setIsSummaryLoading(false);
+        return;
+      }
+
+      // Live Mode: Use blockchain
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
       }
@@ -318,10 +379,12 @@ export function useAppState(): UseDEXReturnType {
       setIsSummaryLoading(false);
 
       // Reload data with retry
-      await retryAsync(async () => {
-        await loadUserBalances(userAddress);
-        await loadPoolReserves();
-      }, 8, 2000);
+      if (userAddress) {
+        await retryAsync(async () => {
+          await loadUserBalances(userAddress);
+          await loadPoolReserves();
+        }, 8, 2000);
+      }
 
       setTransactionSummary(`✅ Liquidity added!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
@@ -331,11 +394,11 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, ethReserve, tokenReserve, loadUserBalances, loadPoolReserves, retryAsync]);
+  }, [userAddress, ethReserve, tokenReserve, loadUserBalances, loadPoolReserves, retryAsync, isLiveMode, userEthBalance, userTokenBalance, userLiquidity, totalLiquidity]);
 
   // Withdraw function
   const withdraw = useCallback(async (lpAmount: number) => {
-    if (!userAddress) {
+    if (!userAddress && isLiveMode) {
       alert('Please connect wallet first');
       return;
     }
@@ -343,6 +406,30 @@ export function useAppState(): UseDEXReturnType {
     setIsLoading(true);
     setIsSummaryLoading(true);
     try {
+      // Dummy Mode: Simulate withdrawal locally
+      if (!isLiveMode) {
+        console.log('[useAppState] Dummy Mode Withdraw:', { lpAmount });
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Calculate how much ETH and TOKEN the LP represents
+        const ratio = lpAmount / totalLiquidity;
+        const ethOut = ethReserve * ratio;
+        const tokenOut = tokenReserve * ratio;
+        
+        setUserEthBalance(userEthBalance + ethOut);
+        setUserTokenBalance(userTokenBalance + tokenOut);
+        setUserLiquidity(userLiquidity - lpAmount);
+        setEthReserve(ethReserve - ethOut);
+        setTokenReserve(tokenReserve - tokenOut);
+        setTotalLiquidity(totalLiquidity - lpAmount);
+
+        setTransactionSummary(`✅ Liquidity withdrawn!\nReceived ${ethOut.toFixed(4)} ETH + ${tokenOut.toFixed(2)} ZAMA\nBurned LP: ${lpAmount.toFixed(5)}`);
+        setIsSummaryLoading(false);
+        return;
+      }
+
+      // Live Mode: Use blockchain
       if (!(window as any).ethereum) {
         throw new Error('MetaMask not available');
       }
@@ -364,10 +451,12 @@ export function useAppState(): UseDEXReturnType {
       setIsSummaryLoading(false);
 
       // Reload data with retry
-      await retryAsync(async () => {
-        await loadUserBalances(userAddress);
-        await loadPoolReserves();
-      }, 8, 2000);
+      if (userAddress) {
+        await retryAsync(async () => {
+          await loadUserBalances(userAddress);
+          await loadPoolReserves();
+        }, 8, 2000);
+      }
 
       setTransactionSummary(`✅ Liquidity withdrawn!\nTx: ${tx.hash.slice(0, 10)}...\n\n✅ Balances updated`);
     } catch (error) {
@@ -377,7 +466,7 @@ export function useAppState(): UseDEXReturnType {
     } finally {
       setIsLoading(false);
     }
-  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync]);
+  }, [userAddress, loadUserBalances, loadPoolReserves, retryAsync, isLiveMode, ethReserve, tokenReserve, userEthBalance, userTokenBalance, userLiquidity, totalLiquidity]);
 
   // Load pool reserves and user balances when user address changes
   useEffect(() => {
