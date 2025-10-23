@@ -1,10 +1,10 @@
-# ZAMA DEX FHE - Architecture & Technical Design
+# FHE DEX Template - Architecture & Technical Design
 
 **Last Updated**: October 19, 2025  
 **Status**: Production Ready on Sepolia Testnet  
-**Contracts**: Deployed and tested, FHE-ready for Zama FHEVM migration
+**Contracts**: Deployed and tested, FHE-ready for FHEVM migration
 
-This document describes the architecture, design patterns, and FHE integration of the ZAMA DEX FHE project.
+This document describes the architecture, design patterns, and FHE integration of the FHE DEX Template project.
 
 ## ⚠️ Important Note
 
@@ -44,8 +44,7 @@ This document describes the architecture, design patterns, and FHE integration o
 - **Operations**: Homomorphic arithmetic on encrypted data
 - **When**: Zama FHEVM (ChainID 8008) becomes publicly available
 
-### Key Features:
-- **Confidential Swaps**: ETH ↔ ZAMA Token with privacy architecture ready
+- **Confidential Swaps**: ETH ↔ Demo Token with privacy architecture ready
 - **Liquidity Management**: Add/remove liquidity with LP token handling
 - **Production Ready**: Live on Sepolia, tested end-to-end
 - **FHE Compatible**: Designed for FHEVM migration, minimal code changes needed
@@ -57,7 +56,7 @@ This document describes the architecture, design patterns, and FHE integration o
 ```
 contracts/
 ├── DEX.sol          # Main DEX contract (Automated Market Maker)
-└── Token.sol        # ZamaToken ERC20 contract
+└── Token.sol        # DemoToken ERC20 contract
 ```
 
 ### DEX Contract (DEX.sol)
@@ -66,7 +65,7 @@ contracts/
 
 **State Variables**:
 ```solidity
-IERC20 public token;              // ZamaToken contract reference
+IERC20 public token;              // DemoToken contract reference
 uint public totalLiquidity;       // Total LP tokens minted
 mapping(address => uint) public liquidity;  // User LP token balances
 ```
@@ -124,12 +123,12 @@ event Withdraw(address indexed provider, uint lpAmount, uint ethAmount, uint tok
 #### 5. `getReserves() public view returns (uint, uint)`
 Returns current pool reserves (ETH and Token amounts).
 
-### ZamaToken Contract (Token.sol)
+### DemoToken Contract (Token.sol)
 
 **Purpose**: ERC20 token for testing and DEX operations
 
 **Features**:
-- Mints 5000 ZAMA tokens to deployer at deployment
+- Mints 5000 Demo tokens to deployer at deployment
 - Standard ERC20 implementation from OpenZeppelin
 - 18 decimal places (standard for Ethereum)
 
@@ -209,7 +208,7 @@ interface DEXState {
 
 Displays real-time balances of:
 - Native ETH balance
-- ZAMA token balance
+- Demo token balance
 - LP token (liquidity provider) balance
 
 ## FHEVM Integration
@@ -249,7 +248,7 @@ export function getEncryptionStatus(): EncryptionStatus
 **Current Mode**: Dummy/Mock
 - Simulates encryption for demonstration
 - Output format: `0x_encrypted_"value"`
-- For real FHE: Requires Zama whitelist/relayer access
+- For real FHE: Requires FHEVM whitelist/relayer access
 
 #### React Adapter (react.ts)
 
@@ -373,7 +372,7 @@ User provides ETH + Token
 - Useful for testing UI/UX and contract logic
 
 **Production with Real FHEVM**:
-- True on-chain encryption via Zama SDK
+- True on-chain encryption via FHEVM SDK
 - Requires whitelist/relayer infrastructure
 - Transaction amounts and balances truly confidential
 - Sealed transactions prevent MEV
@@ -457,9 +456,9 @@ React/TypeScript Frontend
 ## Future Enhancements
 
 1. **Real FHEVM Integration**:
-   - Integrate Zama's official SDK
-   - Implement whitelist/relayer access
-   - On-chain encrypted state
+    - Integrate FHEVM official SDK
+    - Implement whitelist/relayer access
+    - On-chain encrypted state
 
 2. **Advanced Features**:
    - Multiple token pairs
@@ -480,4 +479,4 @@ React/TypeScript Frontend
 
 **Version**: 1.0  
 **Last Updated**: October 18, 2025  
-**Maintainer**: ZAMA DEX FHE Team
+**Maintainer**: FHE DEX Template Team

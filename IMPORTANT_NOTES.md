@@ -1,11 +1,11 @@
-# ZAMA DEX - Önemli Notlar
+# FHE DEX Template - Önemli Notlar
 
 ## 🔴 Kontrat Değişiklikleri (19 Ekim 2025)
 
 ### Oracle Callback Modelinden Immediate AMM'ye Geçiş
 
 **Sorun:**
-- Kontrat Oracle callback modelini kullanıyordu (Zama FHEVM için hazırlanmış)
+- Kontrat Oracle callback modelini kullanıyordu (FHEVM için hazırlanmış)
 - `swapEthForToken()` ve `swapTokenForEth()` işlemleri ETH/Token alıyordu ama **geri vermiyordu**
 - Relayer yoktu, `handleDecryptedSwap()` hiç çağrılmıyordu
 - User işlem gönderiyordu ama hiç token almıyordu
@@ -13,7 +13,7 @@
 **Çözüm Uygulandı:**
 - `swapEthForToken()` - Immediate AMM'ye çevrildi (AMM formülü ile hemen hesapla + transfer)
 - `swapTokenForEth()` - Immediate AMM'ye çevrildi (AMM formülü ile hemen hesapla + transfer)
-- `handleDecryptedSwap()` - Comment'e alındı (gelecekte Zama Zincirinde FHE ile re-enable edilecek)
+- `handleDecryptedSwap()` - Comment'e alındı (gelecekte FHEVM Zincirinde FHE ile re-enable edilecek)
 
 **Değiştirilen Dosya:**
 - `/workspaces/ZAMA-DEX-FHE/contracts/FHEDEX.sol`

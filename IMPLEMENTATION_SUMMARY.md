@@ -1,4 +1,4 @@
-# ZAMA DEX FHE - Implementation Summary
+# FHE DEX Template - Implementation Summary
 
 **Last Updated**: October 19, 2025  
 **Status**: ✅ Production Ready on Sepolia Testnet  
@@ -16,8 +16,8 @@
 
 ### ✅ Current Capabilities (Sepolia)
 1. **Token Swaps**
-   - ETH → ZAMA Token
-   - ZAMA Token → ETH
+   - ETH → Demo Token
+   - Demo Token → ETH
    - Formula: Constant Product (x*y=k) with 0.3% fee
    
 2. **Liquidity Management**
@@ -69,12 +69,12 @@
 ### Contracts
 | Contract | Address |
 |----------|---------|
-| ZamaToken (ERC20) | `0x3630d67C78A3da51549e8608C17883Ea481D817F` |
+| DemoToken (ERC20) | `0x3630d67C78A3da51549e8608C17883Ea481D817F` |
 | FHEDEX (DEX) | `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be` |
 
 ### Liquidity Pool
 - **ETH**: 0.05 ETH
-- **ZAMA**: 500 ZAMA tokens
+- **Demo**: 500 Demo tokens
 - **LP Tokens**: 100 (sqrt(0.05 * 500))
 
 ---
@@ -130,7 +130,7 @@
 
 ### Issue 4: Withdraw Returns Only ETH (NOT TOKEN)
 - **Problem**: `removeLiquidity` didn't transfer token back
-- **Solution**: Fixed variable name (`zamaToken` → `token`) and added token transfer
+- **Solution**: Fixed variable name (`demoToken` → `token`) and added token transfer
 - **Result**: ✅ Fixed - Now returns BOTH ETH and TOKEN
 
 ### Issue 5: LP Balance Not Displaying
@@ -146,7 +146,7 @@
 - **DEX**: `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be`
 - **Token**: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
 - **Status**: ✅ All features working
-- **Notes**: Fixed `zamaToken` → `token` variable, all operations tested
+- **Notes**: Fixed `demoToken` → `token` variable, all operations tested
 
 **Previous deployments**: Cleaned up (see `/deployments/` for history)
 
@@ -154,7 +154,7 @@
 
 ## 🔮 Future: Full FHE Implementation
 
-### When Zama FHEVM (ChainID 8008) Becomes Available
+### When FHEVM (ChainID 8008) Becomes Available
 This implementation is **ready to migrate** to full Homomorphic Encryption:
 
 ```solidity
@@ -178,7 +178,7 @@ This implementation is **ready to migrate** to full Homomorphic Encryption:
 ```
 
 **Migration Effort**: ~20% code changes (core logic unchanged)  
-**Timeline**: Ready immediately when Zama public RPC available
+**Timeline**: Ready immediately when public FHEVM RPC available
 
 ---
 
@@ -234,14 +234,14 @@ This implementation is **ready to migrate** to full Homomorphic Encryption:
 ## 🚀 How to Use
 
 ### For Users
-1. Visit: https://zama-dex-qlvj35od7-kohens-projects.vercel.app
+1. Visit: https://fhe-dex-template.vercel.app
 2. Connect MetaMask to Sepolia testnet
 3. Get Sepolia ETH from [faucet](https://sepolia-faucet.pk910.de)
-4. Deposit ETH + ZAMA tokens
+4. Deposit ETH + Demo tokens
 5. Swap or withdraw as needed
 
 ### For Developers
-1. `git clone https://github.com/dharmanan/ZAMA-DEX-FHE.git`
+1. `git clone https://github.com/dharmanan/FHE-DEX-Template.git`
 2. `npm install`
 3. `npm run dev` (frontend)
 4. `npm run compile` (contracts)
@@ -258,7 +258,7 @@ This implementation is **ready to migrate** to full Homomorphic Encryption:
 | **Sepolia Deployment** | ✅ Live | Full functionality |
 | **Testing** | ✅ Passed | All operations verified |
 | **Documentation** | ✅ Complete | Full tech docs included |
-| **FHE Ready** | ✅ Yes | Awaits Zama public RPC |
+| **FHE Ready** | ✅ Yes | Awaits public FHEVM RPC |
 | **Production Ready** | ✅ Yes | Live and stable |
 
 ---
@@ -277,4 +277,4 @@ This implementation is **ready to migrate** to full Homomorphic Encryption:
 **Ready for FHE Migration**: October 19, 2025  
 **Production Status**: 🟢 Live and Stable  
 
-For questions or updates, see the [GitHub repository](https://github.com/dharmanan/ZAMA-DEX-FHE).
+For questions or updates, see the [GitHub repository](https://github.com/dharmanan/FHE-DEX-Template).
