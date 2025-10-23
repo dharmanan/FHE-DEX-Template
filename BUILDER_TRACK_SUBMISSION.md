@@ -31,7 +31,7 @@
 | **Pool Liquidity** | 0.05 ETH + 500 DEMO | ✅ Active |
 
 ### Production URL
-**Frontend**: https://fhe-dex-template.vercel.app
+**Frontend**: https://fhe-dex.vercel.app/
 
 ### Verified Operations
 ✅ **Swaps**: ETH ↔ DEMO tokens (Constant Product Formula, 0.3% fee)  
@@ -154,7 +154,7 @@
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://fhe-dex-template.vercel.app |
+| **Live Demo** | https://fhe-dex.vercel.app/ |
 | **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Documentation** | [README.md](./README.md), [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) |
 | **FHEVM Docs** | https://docs.fhevm.io |

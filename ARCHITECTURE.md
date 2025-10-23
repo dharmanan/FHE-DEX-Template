@@ -18,7 +18,7 @@ This document describes the architecture, design patterns, and FHE integration o
 - DEX: `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be`
 - Token: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
 - Network: Sepolia Testnet (ChainID 11155111)
-- Frontend: https://zama-dex-qlvj35od7-kohens-projects.vercel.app
+- Frontend: https://fhe-dex.vercel.app
 
 ## Table of Contents
 
