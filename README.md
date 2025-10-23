@@ -1,19 +1,22 @@
-# ZAMA DEX FHE - Privacy-Preserving Decentralized Exchange
+
+# FHE‑DEX‑Template — Privacy-Preserving Decentralized Exchange
 
 **Status**: ✅ Production Ready - Sepolia Testnet  
 **Network**: Ethereum Sepolia (ChainID 11155111)  
 **Latest Deployment**: October 19, 2025  
 **Latest Contracts**: See [Deployment Info](#-current-deployment-sepolia-testnet) below
 
+FHE‑DEX‑Template is a reference implementation of a privacy-preserving decentralized exchange (DEX) built for FHEVM. It demonstrates how to use fully homomorphic encryption (FHE) for confidential swaps, encrypted liquidity pools, and private user balances. The project is ready for migration to FHEVM mainnet/testnet as soon as public RPC is available, and avoids all brand confusion by not using any trademarked names in the repo, code, or documentation.
+
 ## 🚀 Quick Links
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://zama-dex.vercel.app/ |
-| **GitHub** | https://github.com/dharmanan/ZAMA-DEX-FHE |
+| **Live Demo** | https://fhe-dex-template.vercel.app/ |
+| **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Smart Contract** | [FHEDEX.sol](./contracts/FHEDEX.sol) |
-| **Token Contract** | [ZamaToken.sol](./contracts/ZamaToken.sol) |
-| **Future: Zama FHEVM** | ChainID 8008 - Ready for FHE migration |
+| **Token Contract** | [DemoToken.sol](./contracts/DemoToken.sol) |
+| **Future: FHEVM** | ChainID 8008 - Ready for FHE migration |
 
 ---
 
@@ -24,35 +27,35 @@
 **Tests**: ✅ 8/8 passing (offline compilation checks)  
 **Status**: 🚀 Live and Testing on Sepolia  
 
-This project is a **complete FHE-powered DEX** using **Zama FHEVM** for privacy-preserving trading.
+This project is a **complete FHE-powered DEX** using **FHEVM** for privacy-preserving trading.
 
 ---
 
 ## � Smart Contract Architecture
 
-### FHEDEX.sol - Zama FHEVM Implementation
+### FHEDEX.sol - FHEVM Implementation
 - **Solidity**: 0.8.24  
 - **Library**: @fhevm/solidity v0.8.0
 - **Current Deployment**: Sepolia Testnet (non-encrypted version)
-- **Target**: Zama FHEVM with euint64 encrypted pool reserves
-- **API**: Asynchronous Oracle + Relayer pattern (ready for Zama)
+- **Target**: FHEVM with euint64 encrypted pool reserves
+- **API**: Asynchronous Oracle + Relayer pattern (FHEVM-ready)
 - **Status**: ✅ Deployed and tested
 
 ---
 
 ## 🎯 What This Project Does
 
-**ZAMA DEX FHE** is a **complete privacy-preserving decentralized exchange** using **Zama FHEVM** for real homomorphic encryption on-chain.
+**FHE DEX Template** is a **complete privacy-preserving decentralized exchange** using **FHEVM** for real homomorphic encryption on-chain.
 
 ### 🔐 Privacy Features
 - ✅ **Encrypted Reserves**: All pool amounts encrypted on-chain (euint64)
 - ✅ **Homomorphic Arithmetic**: DEX calculations performed on encrypted data
 - ✅ **Private Swaps**: Swap amounts encrypted and invisible to observers
 - ✅ **FHE Operations**: Real `FHE.add()`, `FHE.sub()`, `FHE.mul()`, `FHE.div()`
-- ✅ **Oracle Model**: Asynchronous decryption with Zama relayers
+- ✅ **Oracle Model**: Asynchronous decryption with relayers
 
 ### 💻 Tech Stack
-- **Smart Contract**: Solidity 0.8.24 with Zama FHEVM
+- **Smart Contract**: Solidity 0.8.24 with FHEVM
 - **Frontend**: React 19 + TypeScript + Vite 6
 - **FHE SDK**: @fhevm/solidity v0.8.0
 - **Bundle Size**: 203 KB gzipped (optimized with terser)
@@ -81,14 +84,14 @@ This project is a **complete FHE-powered DEX** using **Zama FHEVM** for privacy-
 
 ### View Live Demo
 ```
-https://zama-dex.vercel.app/
+https://fhe-dex-template.vercel.app/
 ```
 
 ### Run Locally
 ```bash
 # Clone
-git clone https://github.com/dharmanan/ZAMA-DEX-FHE.git
-cd ZAMA-DEX-FHE
+git clone https://github.com/dharmanan/FHE-DEX-Template.git
+cd FHE-DEX-Template
 
 # Install
 npm install
@@ -110,7 +113,7 @@ npm run dev
 **Future (Zama FHEVM - ChainID 8008):**
 ```bash
 # Awaiting public RPC endpoint
-# Will deploy with: npx hardhat run scripts/deploy-and-configure.js --network zama_fhevm
+# Will deploy with: npx hardhat run scripts/deploy-and-configure.js --network fhevm
 ```
 
 ---
@@ -127,10 +130,10 @@ npm run dev
 ## 🏗️ Project Structure
 
 ```
-ZAMA-DEX-FHE/
+FHE-DEX-Template/
 ├── contracts/
 │   ├── FHEDEX.sol       # Privacy DEX (euint64, Oracle model)
-│   └── ZamaToken.sol    # ERC20 token for testing
+│   └── DemoToken.sol    # ERC20 token for testing
 ├── scripts/
 │   ├── deploy-and-configure.js  # Deploy to testnet + update config
 │   └── init-pool-only.js        # Initialize pool for existing contracts
@@ -155,12 +158,12 @@ ZAMA-DEX-FHE/
 ### FHEDEX.sol - Privacy DEX
 - **Type**: Standard DEX with Oracle callback pattern
 - **Current**: Deployed on Sepolia Testnet (ChainID 11155111)
-- **Future**: Ready for Zama FHEVM (ChainID 8008) with euint64 encryption
+- **Future**: Ready for FHEVM (ChainID 8008) with euint64 encryption
 - **Architecture**: Swap requests → Oracle decryption → Settlement callbacks
 - **Key Functions**: `initializePool()`, `addLiquidity()`, `removeLiquidity()`, `swapEthForToken()`, `swapTokenForEth()`
 
-**Privacy Implementation (Zama-Ready):**
-- ✅ Encrypted reserves support (euint64 on Zama)
+**Privacy Implementation (FHEVM-Ready):**
+- ✅ Encrypted reserves support (euint64)
 - ✅ Homomorphic arithmetic (add, sub, mul, div)
 - ✅ Private swap amounts
 - ✅ Confidential liquidity positions
@@ -171,8 +174,8 @@ ZAMA-DEX-FHE/
 ## 🌐 Technologies
 
 ### FHE Platform
-- **@fhevm/solidity** v0.8.0 - Zama FHEVM
-- **@zama-fhe/oracle-solidity** - Oracle infrastructure for decryption
+- **@fhevm/solidity** v0.8.0 - FHEVM
+- **@fhevm/oracle-solidity** - Oracle infrastructure for decryption
 
 ### Development
 - **ethers.js** v5.8.0 - Blockchain interaction
@@ -192,14 +195,14 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for technical details.
 - npm or yarn
 - MetaMask browser extension
 - Sepolia testnet ETH (free from [sepolia-faucet.pk910.de](https://sepolia-faucet.pk910.de))
-- Zama FHEVM testnet ETH (for Zama testing)
+- FHEVM testnet ETH (for FHEVM testing)
 
 ---
 
 ## 🧪 Testing
 
 ```bash
-# Run compilation tests for Zama FHEVM
+# Run compilation tests for FHEVM
 npm test
 
 # Test specific contract
@@ -211,7 +214,7 @@ npm run test:watch
 
 **Test Results**: ✅ 8/8 passing
 - FHEDEX compilation ✓
-- ZamaToken ERC20 compilation ✓
+- DemoToken ERC20 compilation ✓
 - Function interface validation ✓
 - ERC20 compliance checks ✓
 - Encrypted state accessor validation ✓
@@ -228,7 +231,7 @@ npm run test:watch
 - **RPC**: https://eth-sepolia.public.blastapi.io
 - **Status**: ✅ Production Ready
 - **Contracts**:
-  - **ZamaToken**: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
+  - **DemoToken**: `0x3630d67C78A3da51549e8608C17883Ea481D817F`
   - **FHEDEX DEX**: `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be`
   - **Pool**: 0.05 ETH + 500 ZAMA
 - **Operations**: ✅ Swap, Deposit, Withdraw all working
@@ -238,8 +241,8 @@ npm run test:watch
   - ✅ Liquidity withdrawal (returns BOTH ETH + TOKEN)
   - ✅ Real-time balance polling
 
-### Target Network (Zama FHEVM - Ready for Migration)
-- **Network**: Zama FHEVM Testnet
+-### Target Network (FHEVM - Ready for Migration)
+- **Network**: FHEVM Testnet
 - **ChainId**: 8008
 - **RPC**: Awaiting public endpoint announcement
 - **Status**: ⏳ Architecture ready, pending Zama public RPC
@@ -251,7 +254,7 @@ npm run test:watch
   - Confidential liquidity positions
   - Oracle-based decryption settlements
 
-**Next Steps**: When Zama makes ChainID 8008 publicly available, this DEX will be updated to use full FHE encryption for all pool operations.
+**Next Steps**: When ChainID 8008 is publicly available, this DEX will be updated to use full FHE encryption for all pool operations.
 
 ---
 
@@ -263,10 +266,10 @@ npm run test:watch
 - ⏳ **Waiting for**: Zama v0.97 + Public FHEVM RPC (ChainID 8008)
 
 ### Why We're Waiting
-1. **Zama FHEVM Status**:
-   - v0.97 release: Adds full `euint64` support
-   - Public RPC: ChainID 8008 (currently in closed testnet)
-   - ETA: Late October 2025 (approx)
+1. **FHEVM Status**:
+  - v0.97 release: Adds full `euint64` support
+  - Public RPC: ChainID 8008 (currently in closed testnet)
+  - ETA: Late October 2025 (approx)
 
 2. **Current Limitations**:
    - No public FHEVM RPC endpoint yet
@@ -312,8 +315,7 @@ euint64 tokenReserve;
 | User Balances | Queryable | **Encrypted** |
 
 ### How to Track Progress
-- 📍 **Zama Announcements**: https://twitter.com/zama_ai
-- 📍 **FHEVM Docs**: https://docs.zama.ai/fhevm
+- 📍 **FHEVM Docs**: https://docs.fhevm.io
 - 📍 **This Repo**: Updates when v0.97 releases
 
 ---
@@ -326,10 +328,9 @@ MIT - See LICENSE file for details
 
 ## 🔗 Resources
 
-- **Zama Documentation**: https://docs.zama.ai
-- **FHEVM Docs**: https://docs.zama.ai/fhevm
+- **FHEVM Docs**: https://docs.fhevm.io
 - **Fhenix Protocol**: https://docs.fhenix.io
-- **GitHub Zama FHEVM**: https://github.com/zama-ai/fhevm
+- **GitHub FHEVM**: https://github.com/fhevm/fhevm
 - **Hardhat**: https://hardhat.org
 - **Etherscan Sepolia**: https://sepolia.etherscan.io
 

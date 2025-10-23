@@ -1,22 +1,22 @@
-# 🏗️ Builder Track Submission - ZAMA DEX FHE
+# 🏗️ Builder Track Submission - FHE DEX Template
 
 **Project**: Privacy-Preserving DEX with Real Fully Homomorphic Encryption (FHE)  
 **Status**: ✅ MVP Complete - Production Ready  
 **Date**: October 19, 2025  
 **Current Network**: Ethereum Sepolia Testnet (ChainID 11155111)  
-**Target Network**: Zama FHEVM (ChainID 8008) - Ready for Migration
+**Target Network**: FHEVM (ChainID 8008) - Ready for Migration
 
 ---
 
 ## 📋 Executive Summary
 
-**ZAMA DEX** is a fully-functional decentralized exchange (DEX) with complete AMM implementation. Currently live on Sepolia testnet with all operations working. The architecture is **designed and ready to migrate to Zama's FHEVM for full Homomorphic Encryption** when the testnet becomes publicly available.
+**FHE DEX Template** is a fully-functional decentralized exchange (DEX) with complete AMM implementation. Currently live on Sepolia testnet with all operations working. The architecture is **designed and ready to migrate to FHEVM for full Homomorphic Encryption** when the testnet becomes publicly available.
 
 **Current Status**:
 - ✅ All operations working (swap, deposit, withdraw)
 - ✅ Production deployment on Sepolia
 - ✅ Frontend live on Vercel
-- ✅ FHE architecture ready (awaiting Zama testnet access)
+- ✅ FHE architecture ready (awaiting FHEVM testnet access)
 
 ---
 
@@ -27,16 +27,16 @@
 | Component | Address | Status |
 |-----------|---------|--------|
 | **FHEDEX DEX** | `0x52e1F9F6F9d51F5640A221061d3ACf5FEa3398Be` | ✅ Live |
-| **ZamaToken** | `0x3630d67C78A3da51549e8608C17883Ea481D817F` | ✅ Live |
-| **Pool Liquidity** | 0.05 ETH + 500 ZAMA | ✅ Active |
+| **DemoToken** | `0x3630d67C78A3da51549e8608C17883Ea481D817F` | ✅ Live |
+| **Pool Liquidity** | 0.05 ETH + 500 DEMO | ✅ Active |
 
 ### Production URL
-**Frontend**: https://zama-dex-qlvj35od7-kohens-projects.vercel.app
+**Frontend**: https://fhe-dex-template.vercel.app
 
 ### Verified Operations
-✅ **Swaps**: ETH ↔ ZAMA tokens (Constant Product Formula, 0.3% fee)  
+✅ **Swaps**: ETH ↔ DEMO tokens (Constant Product Formula, 0.3% fee)  
 ✅ **Deposits**: Add liquidity → Get LP tokens (sqrt formula)  
-✅ **Withdrawals**: LP tokens → ETH + ZAMA back  
+✅ **Withdrawals**: LP tokens → ETH + DEMO back  
 ✅ **Polling**: Real-time balance updates (3s user, 5s pool)  
 ✅ **UI**: MetaMask integration, error handling, retry logic  
 
@@ -48,9 +48,9 @@
 **Type**: Immediate AMM execution (no encryption)  
 **Purpose**: Test all operations, prove functionality  
 
-### Future Implementation (Zama FHEVM - Ready to Deploy)
+### Future Implementation (FHEVM - Ready to Deploy)
 **Type**: Full Homomorphic Encryption with euint64  
-**When**: Zama ChainID 8008 public RPC available  
+**When**: ChainID 8008 public RPC available  
 
 **Migration needed**:
 - euint64 encrypted state variables
@@ -135,7 +135,7 @@
 - [x] Architecture designed for euint64
 - [x] Function structure compatible
 - [x] State encryption ready
-- [ ] ⏳ Awaiting Zama FHEVM public RPC
+- [ ] ⏳ Awaiting FHEVM public RPC
 
 ---
 
@@ -154,15 +154,15 @@
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://zama-dex-qlvj35od7-kohens-projects.vercel.app |
-| **GitHub** | https://github.com/dharmanan/ZAMA-DEX-FHE |
+| **Live Demo** | https://fhe-dex-template.vercel.app |
+| **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Documentation** | [README.md](./README.md), [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) |
-| **Zama Docs** | https://docs.zama.ai/fhevm |
+| **FHEVM Docs** | https://docs.fhevm.io |
 
 ---
 
 **Built with ❤️ for Privacy-Preserving Finance**  
 **Status**: 🟢 Production Ready on Sepolia  
-**FHE Status**: 🟡 Architecture Ready, Awaiting Zama Testnet  
+**FHE Status**: 🟡 Architecture Ready, Awaiting FHEVM Testnet  
 
-For questions, visit [GitHub](https://github.com/dharmanan/ZAMA-DEX-FHE).
+For questions, visit [GitHub](https://github.com/dharmanan/FHE-DEX-Template).
