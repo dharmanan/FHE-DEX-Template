@@ -35,7 +35,7 @@ Settings → Environment Variables
 
 ## Verification
 After redeploy (2-3 min), test at:
-https://zama-dex-qlvj35od7-kohens-projects.vercel.app
+https://fhe-dex.vercel.app
 
 ---
 

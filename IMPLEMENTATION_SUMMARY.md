@@ -64,7 +64,7 @@
 
 ### Network: Ethereum Sepolia
 - **Chain ID**: 11155111
-- **URL**: https://zama-dex-qlvj35od7-kohens-projects.vercel.app
+- **URL**: https://fhe-dex.vercel.app
 
 ### Contracts
 | Contract | Address |
@@ -234,7 +234,7 @@ This implementation is **ready to migrate** to full Homomorphic Encryption:
 ## 🚀 How to Use
 
 ### For Users
-1. Visit: https://fhe-dex-template.vercel.app
+1. Visit: https://fhe-dex.vercel.app
 2. Connect MetaMask to Sepolia testnet
 3. Get Sepolia ETH from [faucet](https://sepolia-faucet.pk910.de)
 4. Deposit ETH + Demo tokens

@@ -12,7 +12,7 @@ FHE‑DEX‑Template is a reference implementation of a privacy-preserving decen
 
 | Resource | Link |
 |----------|------|
-| **Live Demo** | https://fhe-dex-template.vercel.app/ |
+| **Live Demo** | https://fhe-dex.vercel.app/ |
 | **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Smart Contract** | [FHEDEX.sol](./contracts/FHEDEX.sol) |
 | **Token Contract** | [DemoToken.sol](./contracts/DemoToken.sol) |
@@ -84,7 +84,7 @@ This project is a **complete FHE-powered DEX** using **FHEVM** for privacy-prese
 
 ### View Live Demo
 ```
-https://fhe-dex-template.vercel.app/
+https://fhe-dex.vercel.app/
 ```
 
 ### Run Locally
