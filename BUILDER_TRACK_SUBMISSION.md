@@ -155,6 +155,7 @@
 | Resource | Link |
 |----------|------|
 | **Live Demo** | https://fhe-dex.vercel.app/ |
+| **Demo Video** | https://www.youtube.com/watch?v=yBtMLE3O6NY |
 | **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Documentation** | [README.md](./README.md), [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) |
 | **FHEVM Docs** | https://docs.fhevm.io |
