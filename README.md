@@ -1,4 +1,3 @@
-
 # FHE‑DEX‑Template — Privacy-Preserving Decentralized Exchange
 
 **Status**: ✅ Production Ready - Sepolia Testnet  
@@ -13,9 +12,10 @@ FHE‑DEX‑Template is a reference implementation of a privacy-preserving decen
 | Resource | Link |
 |----------|------|
 | **Live Demo** | https://fhe-dex.vercel.app/ |
+| **Walkthrough Video** | https://www.youtube.com/watch?v=yBtMLE3O6NY |
 | **GitHub** | https://github.com/dharmanan/FHE-DEX-Template |
 | **Smart Contract** | [FHEDEX.sol](./contracts/FHEDEX.sol) |
-| **Token Contract** | [DemoToken.sol](./contracts/DemoToken.sol) |
+| **Token Contract** | [ZamaToken.sol](./contracts/ZamaToken.sol) |
 | **Future: FHEVM** | ChainID 8008 - Ready for FHE migration |
 
 ---
